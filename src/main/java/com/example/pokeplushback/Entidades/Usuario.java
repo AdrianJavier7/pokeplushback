@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "usuario", schema = "pokeplush" , catalog = "postgres")
@@ -25,7 +26,7 @@ public class Usuario {
     private String apellidos;
 
     @Column(name = "descripcion")
-    private String descipcion;
+    private String descripcion;
 
     @Column(name = "email", unique = true)
     private String email;
@@ -50,4 +51,7 @@ public class Usuario {
 
     @Column(name = "cod_verif")
     private String codigo_verificacion;
+
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Direccion> direcciones;
 }

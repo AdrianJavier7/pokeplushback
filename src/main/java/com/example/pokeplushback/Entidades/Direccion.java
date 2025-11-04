@@ -18,4 +18,8 @@ public class Direccion {
 
     @Column(name = "direccion")
     private String direccion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
 }

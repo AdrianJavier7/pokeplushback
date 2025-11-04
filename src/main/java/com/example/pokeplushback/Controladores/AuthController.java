@@ -30,8 +30,6 @@ public class AuthController {
                         "\n" +
                         "Para comenzar, te recomendamos:\n" +
                         "🔹 Completar tu perfil para que la comunidad te conozca mejor.\n" +
-                        "🔹 Seguir a otros coleccionistas para descubrir nuevos peluches.\n" +
-                        "🔹 Subir tu primer peluche y compartirlo con todos. 🧡\n" +
                         "\n" +
                         "Si necesitas ayuda, estamos aquí para ti. No dudes en visitar nuestra sección de ayuda o escribirnos.\n" +
                         "\n" +
