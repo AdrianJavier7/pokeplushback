@@ -9,5 +9,4 @@ import java.util.List;
 
 public interface OpinionesRepository extends JpaRepository<Opiniones, Integer> {
 
-
 }
