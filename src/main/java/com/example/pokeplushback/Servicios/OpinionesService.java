@@ -29,9 +29,7 @@ public class OpinionesService {
      *
      */
 
-    public List<Opiniones> findAll() {
-        return opinionesRepository.findAll();
-    }
+
 
     public Opiniones findById(Integer id) {
         return opinionesRepository.findById(id).orElse(null);
