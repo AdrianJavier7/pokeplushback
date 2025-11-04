@@ -29,4 +29,13 @@ public class ItemsCarrito {
 
     @Column (name = "precio_unitario", nullable = false)
     private Double precioUnitario;
+
+    @ManyToOne
+    @JoinColumn(name = "id_carrito")
+    private Carrito carrito;
+
+    // Muchos a uno con Producto
+    @ManyToOne
+    @JoinColumn(name = "id_producto")
+    private Productos producto;
 }

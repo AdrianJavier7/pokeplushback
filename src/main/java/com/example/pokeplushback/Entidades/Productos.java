@@ -3,6 +3,8 @@ package com.example.pokeplushback.Entidades;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 
 @Entity
 @Table(name= "Productos", schema= "pokeplush", catalog = "postgres")
@@ -37,7 +39,12 @@ public class Productos {
     @Column (name= "stock")
     private int stock;
 
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    private List<Opiniones> opiniones;
 
+    // Relación 1:N con CarritoItems
+    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
+    private List<ItemsCarrito> carritoItems;
 
 
 
