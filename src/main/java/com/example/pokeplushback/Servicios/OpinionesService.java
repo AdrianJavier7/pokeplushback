@@ -45,7 +45,11 @@ public class OpinionesService {
 
     //        ---------------- Métodos adicionales si los necesitamos  ------------------
 
+    //Listar las opiniones de un producto (Primero las más recientes)
 
+    public List<Opiniones> listarOpinionesPorProducto (Integer idProducto) {
+        return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto);
+    }
 
 
 
