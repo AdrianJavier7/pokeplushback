@@ -18,12 +18,6 @@ public class ItemsCarrito {
     @Column(name = "id", nullable = false)
     private Integer id;
 
-    @Column(name = "id_carrito", nullable = false)
-    private Integer idCarrito;
-
-    @Column(name = "id_producto", nullable = false)
-    private Integer IdProducto;
-
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
