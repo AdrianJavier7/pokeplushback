@@ -1,7 +1,9 @@
 package com.example.pokeplushback.Servicios;
 
+import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
+import com.example.pokeplushback.Repositorios.UsuarioRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,6 +16,9 @@ public class OpinionesService {
 
     @Autowired
     private OpinionesRepository opinionesRepository;
+
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
     /**
      * Consultar todo
@@ -41,8 +46,21 @@ public class OpinionesService {
     }
 
     //Este lo que hace es crear una nueva opinion y guardarla en la base de datos
-    public Opiniones crearOpinion(Opiniones opinion) {
-        return opinionesRepository.save(opinion);
+    public OpinionesDTO crearOpinion(OpinionesDTO opinion) {
+        Opiniones nuevaOpinion = new Opiniones();
+        nuevaOpinion.setComentario(opinion.getComentario());
+        nuevaOpinion.setOpinion(opinion.getOpinion());
+        nuevaOpinion.setUsuario(usuarioRepository.getById(opinion.getUsuarioId()));
+
+        Opiniones opinionGuardada = opinionesRepository.save(nuevaOpinion);
+
+        OpinionesDTO opinionDTO = new OpinionesDTO();
+        opinionDTO.setId(opinionGuardada.getId());
+        opinionDTO.setComentario(opinionGuardada.getComentario());
+        opinionDTO.setOpinion(opinionGuardada.getOpinion());
+        // Aquí deberías establecer los IDs del usuario y del producto en el DTO
+        return opinionDTO;
+
     }
 
     //Este lo que hace es actualizar una opinion existente en la base de datos

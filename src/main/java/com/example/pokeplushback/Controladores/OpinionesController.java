@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Controladores;
 
+import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Servicios.OpinionesService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +20,7 @@ public class OpinionesController {
     //        ------------- los metodos CRUD --------------
 
     //Obtener todas las opiniones
-    @GetMapping
+    @GetMapping("/all")
     public List<Opiniones> obtenerTodasLasOpiniones() {
         return opinionesService.obtenerTodasLasOpiniones();
     }
@@ -36,7 +37,7 @@ public class OpinionesController {
 
     //Crear una nueva opinion
     @PostMapping
-    public Opiniones crearOpinion(@RequestBody Opiniones opinion) {
+    public OpinionesDTO crearOpinion(@RequestBody OpinionesDTO opinion) {
         return opinionesService.crearOpinion(opinion);
     }
 
