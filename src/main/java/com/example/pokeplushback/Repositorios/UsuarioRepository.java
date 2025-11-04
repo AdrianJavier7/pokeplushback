@@ -1,4 +1,9 @@
 package com.example.pokeplushback.Repositorios;
 
-public interface UsuarioRepository {
+import com.example.pokeplushback.Entidades.Usuario;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 }

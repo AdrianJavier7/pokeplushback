@@ -1,0 +1,25 @@
+package com.example.pokeplushback.Entidades;
+
+import jakarta.persistence.*;
+import lombok.*;
+
+@Entity
+@Table(name = "direccion", schema = "pokeplush" , catalog = "postgres")
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Direccion {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Integer id;
+
+    @Column(name = "direccion")
+    private String direccion;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_usuario", nullable = false)
+    private Usuario usuario;
+}
