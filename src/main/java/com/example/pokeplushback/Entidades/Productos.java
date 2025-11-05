@@ -39,12 +39,12 @@ public class Productos {
     @Column (name= "stock")
     private int stock;
 
+    @Column (name= "habilitado")
+    private boolean habilitado = true;
+
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<Opiniones> opiniones;
 
-    // Relación 1:N con CarritoItems
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
-    private List<ItemsCarrito> carritoItems;
 
 
 

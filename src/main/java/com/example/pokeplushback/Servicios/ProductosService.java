@@ -39,23 +39,27 @@ public class ProductosService {
             }
         }
 
-        if (producto.getCarritoItems() != null){
-            for (ItemsCarrito items :  producto.getCarritoItems()){
-                items.setProducto(producto);
-            }
-        }
-
         return productosRepository.save(producto);
     }
 
     //Añadir producto
     public Productos añadirProductos(Productos producto){
         producto.setOpiniones(null);
-        producto.setCarritoItems(null);
 
         return productosRepository.save(producto);
     }
 
     //Deshabilitar producto
+    public Productos deshabilitarProductos(Integer idProducto){
+        Productos producto = productosRepository.findById(idProducto).orElse(null);
 
+        if (producto == null){
+            return null;
+        }
+
+        producto.setHabilitado(false);
+
+        return productosRepository.save(producto);
+
+    }
 }
