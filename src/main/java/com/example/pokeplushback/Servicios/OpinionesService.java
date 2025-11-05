@@ -97,7 +97,9 @@ public class OpinionesService {
                 .toList();
     }
 
+    //Listar las opiniones de un producto
     public List<Opiniones> listarOpinionesPorProducto (Integer idProducto) {
         return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto);
     }
+
 }
