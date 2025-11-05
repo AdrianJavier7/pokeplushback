@@ -58,7 +58,7 @@ public class OpinionesService {
         opinionDTO.setId(opinionGuardada.getId());
         opinionDTO.setComentario(opinionGuardada.getComentario());
         opinionDTO.setOpinion(opinionGuardada.getOpinion());
-        // Aquí deberías establecer los IDs del usuario y del producto en el DTO
+        opinionDTO.setUsuarioId(opinionGuardada.getUsuario().getId());
         return opinionDTO;
 
     }
@@ -96,12 +96,5 @@ public class OpinionesService {
                 .filter(opinion -> opinion.getProducto().getId().equals(idProducto))
                 .toList();
     }
-
-
-
-
-
-
-
 
 }
