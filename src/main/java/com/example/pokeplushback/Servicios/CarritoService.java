@@ -1,6 +1,7 @@
 package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.ProductosDTO;
+import com.example.pokeplushback.Dto.itemDTO;
 import com.example.pokeplushback.Entidades.Carrito;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Productos;
@@ -26,17 +27,22 @@ public class CarritoService {
 
     public Carrito getCarritoUsuario(Usuario usuario){
 
-        return carritoRepository.findByUsuarioId(usuario.getId());
-
+        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+        return carrito;
     }
 
     public Carrito anyadirAlCarrito(ProductosDTO producto){
 
+        // Llamo a los carritos que esten ACTIVOS del usuario
         Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(producto.getIdUsuario(), Estados.ACTIVO);
 
+        // Si el carrito existe
         if (carrito.getId() != null) {
+
+            // Obtener los items del carrito
             List<ItemsCarrito> items = carrito.getItems();
 
+            // Obtener los productos que ya están en el carrito
             List<Productos> productosEnCarrito = itemsCarritoRepository.findProductosByCarritoId(carrito.getId());
 
             ItemsCarrito nuevoItem = new ItemsCarrito();
@@ -93,6 +99,26 @@ public class CarritoService {
                 // En el caso de que no se encuentre el carrito, devolver un carrito vacío
                 Carrito carritoVacio = new Carrito();
                 return carritoVacio;
+    }
+
+    public Carrito QuitarCantidadItemCarrito(itemDTO itemDTO){
+        // Obtener los items del carrito
+        Carrito carrito = carritoRepository.findById(itemDTO.getIdCarrito()).orElse(null);
+        if (carrito != null) {
+            List<ItemsCarrito> items = carrito.getItems();
+            for (ItemsCarrito item : items) {
+                if (item.getId().equals(itemDTO.getIdProducto())) {
+                    item.setCantidad(item.getCantidad() - itemDTO.getCantidad());
+                    // Actualizar el precio unitario
+                    Float precioProducto = item.getProducto().getPrecio();
+                    Float precioTotal = precioProducto * item.getCantidad();
+                    item.setPrecioUnitario(Double.valueOf(precioTotal));
+                    itemsCarritoRepository.save(item);
+                    return carrito;
+                }
+            }
+        }
+        return null;
     }
 
 

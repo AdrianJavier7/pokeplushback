@@ -42,9 +42,7 @@ public class Productos {
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<Opiniones> opiniones;
 
-    // Relación 1:N con CarritoItems
-    @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
-    private List<ItemsCarrito> carritoItems;
+
 
 
 
