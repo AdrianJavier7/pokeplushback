@@ -15,5 +15,6 @@ public class ProductosDTO {
     private Long foto;
     private int stock;
     private boolean habilitado;
+    private int idUsuario;
 
 }
