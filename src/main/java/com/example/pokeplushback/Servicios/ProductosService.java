@@ -1,5 +1,7 @@
 package com.example.pokeplushback.Servicios;
 
+import com.example.pokeplushback.Entidades.ItemsCarrito;
+import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,4 +30,32 @@ public class ProductosService {
     public List<Productos> listarPrecioMayor() {
         return productosRepository.findAll(Sort.by("precio").descending());
     }
+
+    //Relación con opiniones y carrito
+    public Productos guardarProductos(Productos producto){
+        if (producto.getOpiniones() != null){
+            for(Opiniones opiniones : producto.getOpiniones()){
+                opiniones.setProducto(producto);
+            }
+        }
+
+        if (producto.getCarritoItems() != null){
+            for (ItemsCarrito items :  producto.getCarritoItems()){
+                items.setProducto(producto);
+            }
+        }
+
+        return productosRepository.save(producto);
+    }
+
+    //Añadir producto
+    public Productos añadirProductos(Productos producto){
+        producto.setOpiniones(null);
+        producto.setCarritoItems(null);
+
+        return productosRepository.save(producto);
+    }
+
+    //Deshabilitar producto
+
 }
