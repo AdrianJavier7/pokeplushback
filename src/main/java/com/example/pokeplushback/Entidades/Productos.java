@@ -32,6 +32,9 @@ public class Productos {
     @Column (name= "descripcion")
     private String descripcion;
 
+    @Column (name= "habilitado")
+    private boolean habilitado;
+
     @Lob
     @Column (name= "foto")
     private Long foto;
