@@ -36,11 +36,11 @@ public class Productos {
     private boolean habilitado;
 
     @Lob
-    @Column (name= "foto")
-    private Long foto;
+    @Column(name = "foto", columnDefinition = "bytea")
+    private byte[] foto;
 
     @Column (name= "stock")
-    private int stock;
+    private Integer stock;
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<Opiniones> opiniones;

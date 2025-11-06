@@ -1,18 +1,12 @@
 package com.example.pokeplushback.Controladores;
 
 import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Dto.itemDTO;
+import com.example.pokeplushback.Dto.ItemDTO;
 import com.example.pokeplushback.Entidades.Carrito;
-import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Entidades.Usuario;
-import com.example.pokeplushback.Repositorios.ProductosRepository;
 import com.example.pokeplushback.Servicios.CarritoService;
-import com.example.pokeplushback.Servicios.ProductosService;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/carrito")
@@ -36,7 +30,7 @@ public class CarritoController {
     }
 
     @PostMapping("/quitar")
-    public Carrito quitarDelCarrito(@RequestBody itemDTO item) {
+    public Carrito quitarDelCarrito(@RequestBody ItemDTO item) {
         return carritoService.QuitarCantidadItemCarrito(item);
     }
 

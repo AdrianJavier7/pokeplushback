@@ -1,7 +1,7 @@
 package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Dto.itemDTO;
+import com.example.pokeplushback.Dto.ItemDTO;
 import com.example.pokeplushback.Entidades.Carrito;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Productos;
@@ -101,7 +101,7 @@ public class CarritoService {
                 return carritoVacio;
     }
 
-    public Carrito QuitarCantidadItemCarrito(itemDTO itemDTO){
+    public Carrito QuitarCantidadItemCarrito(ItemDTO itemDTO){
         // Obtener los items del carrito
         Carrito carrito = carritoRepository.findById(itemDTO.getIdCarrito()).orElse(null);
         if (carrito != null) {
