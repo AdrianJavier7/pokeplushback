@@ -1,8 +1,14 @@
 package com.example.pokeplushback.Entidades;
 
+import com.example.pokeplushback.Enums.Nivel;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
@@ -13,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class Usuario {
+public class Usuario implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -40,18 +46,58 @@ public class Usuario {
     @Column(name = "telefono")
     private String telefono;
 
-    @Lob
-    private Long foto;
+    @Column(name = "foto")
+    private String foto;
 
     @Column(name = "password")
     private String password;
 
     @Column(name = "nivel")
-    private String nivel;
+    @Enumerated(EnumType.STRING)
+    private Nivel nivel;
 
     @Column(name = "cod_verif")
     private String codigo_verificacion;
 
+    @Column(name = "verificado")
+    private Boolean verificado = false;
+
     @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Direccion> direcciones;
+
+    // El nombre de usuario será el email (UserDetails)
+    @Override
+    public String getUsername() {
+        return this.email;
+    }
+
+    // Devuelve los niveles de usuario (usa el enum)
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singletonList(new SimpleGrantedAuthority(this.nivel.name()));
+    }
+
+    // Indice si la cuenta no ha expirado
+    @Override
+    public boolean isAccountNonExpired() {
+        return UserDetails.super.isAccountNonExpired();
+    }
+
+    //Indica si la cuenta no está bloqueada
+    @Override
+    public boolean isAccountNonLocked() {
+        return UserDetails.super.isAccountNonLocked();
+    }
+
+    // Indica si las credenciales no han expirado (contraseña)
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return UserDetails.super.isCredentialsNonExpired();
+    }
+
+    // Indica si el usuario está habilitado
+    @Override
+    public boolean isEnabled() {
+        return UserDetails.super.isEnabled();
+    }
 }
