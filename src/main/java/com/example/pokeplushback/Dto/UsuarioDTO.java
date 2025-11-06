@@ -24,5 +24,5 @@ public class UsuarioDTO {
     private String password;
     private Nivel nivel;
     private String codigoVerificacion;
-    private Direccion direccion;
+    private DireccionDTO direccion;
 }
