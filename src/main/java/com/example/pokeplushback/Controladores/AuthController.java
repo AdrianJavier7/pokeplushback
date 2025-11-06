@@ -1,7 +1,11 @@
 package com.example.pokeplushback.Controladores;
 
+import com.example.pokeplushback.Dto.LoginDTO;
+import com.example.pokeplushback.Dto.RegistroDTO;
+import com.example.pokeplushback.Dto.RespuestaDTO;
 import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Servicios.EmailService;
+import com.example.pokeplushback.Servicios.UsuarioService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,9 +18,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 @AllArgsConstructor
 public class AuthController {
+
+    private UsuarioService service;
+
     @Autowired
     private EmailService emailService;
 
+    // Endpoint para el registro de usuarios
+    @PostMapping("/registro")
+    public Usuario registro(@RequestBody RegistroDTO registroDTO){
+        return service.registrarUsuario(registroDTO);
+    }
+
+    // Endpoint para el login de usuarios
+    @PostMapping("/login")
+    public ResponseEntity<RespuestaDTO> registro(@RequestBody LoginDTO dto){
+        return service.login(dto);
+    }
+
+    // Endpoint para enviar correo de verificación
     @PostMapping("/enviarEmail")
     public ResponseEntity<String> registerUser(@RequestBody Usuario user) {
         emailService.enviarEmail(user.getEmail(), "¡Bienvenido/a a PokePush! 🧸⚡",

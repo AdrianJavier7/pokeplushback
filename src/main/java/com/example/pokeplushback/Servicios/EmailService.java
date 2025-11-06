@@ -10,6 +10,7 @@ public class EmailService {
     @Autowired
     private JavaMailSender enviarCorreo;
 
+    // Metodo para enviar un correo electronico de verificacion
     public void enviarEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
