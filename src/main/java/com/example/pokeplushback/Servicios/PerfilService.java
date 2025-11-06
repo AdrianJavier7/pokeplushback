@@ -1,10 +1,12 @@
 package com.example.pokeplushback.Servicios;
 
+import com.example.pokeplushback.Dto.DireccionDTO;
 import com.example.pokeplushback.Dto.UsuarioDTO;
 import com.example.pokeplushback.Entidades.Direccion;
 import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Repositorios.PerfilRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -32,7 +34,7 @@ public class PerfilService {
         dto.setCodigoVerificacion(perfil.getCodigo_verificacion());
 
         List<Direccion> direcciones = perfil.getDirecciones();
-        dto.setDireccion(direcciones != null && !direcciones.isEmpty() ? direcciones.get(0) : null);
+        dto.setDireccion(direcciones != null && !direcciones.isEmpty() ? direccionDto(direcciones.get(0)) : null);
         return dto;
     }
 
@@ -50,7 +52,7 @@ public class PerfilService {
         perfilLogueado.setEmail(perfilDTO.getEmail());
 
         if (perfilDTO.getDireccion() != null) {
-            Direccion dir = perfilDTO.getDireccion();
+            Direccion dir = direccionEntidad(perfilDTO.getDireccion());
             dir.setUsuario(perfilLogueado);
             if (perfilLogueado.getDirecciones() == null) {
                 perfilLogueado.setDirecciones(new ArrayList<>());
@@ -66,5 +68,19 @@ public class PerfilService {
 
         Usuario perfilActualizado = perfilRepository.save(perfilLogueado);
         return miPerfilDTO(perfilActualizado);
+    }
+
+    private DireccionDTO direccionDto(Direccion dir) {
+        if (dir == null) return null;
+        DireccionDTO dto = new DireccionDTO();
+        BeanUtils.copyProperties(dir, dto);
+        return dto;
+    }
+
+    private Direccion direccionEntidad(DireccionDTO dto) {
+        if (dto == null) return null;
+        Direccion dir = new Direccion();
+        BeanUtils.copyProperties(dto, dir);
+        return dir;
     }
 }
