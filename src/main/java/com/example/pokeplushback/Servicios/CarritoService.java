@@ -66,12 +66,11 @@ public class CarritoService {
                     }
                 }
             } else {
-                // Producto no está en el carrito → agregarlo
+                // Producto no está en el carrito - agregarlo
                 ItemsCarrito nuevoItem = new ItemsCarrito();
                 nuevoItem.setCantidad(1);
                 nuevoItem.setCarrito(carrito);
 
-                // ✅ Obtener producto persistido desde la base de datos
                 Productos productoExistente = productosRepository.findById(producto.getId())
                         .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
