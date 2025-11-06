@@ -2,104 +2,115 @@ package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
+import com.example.pokeplushback.Entidades.Productos;
+import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
+import com.example.pokeplushback.Repositorios.ProductosRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
+@Transactional
+@Getter
+@Setter
 public class OpinionesService {
 
-    @Autowired
-    private OpinionesRepository opinionesRepository;
+    private final OpinionesRepository opinionesRepository;
+    private final UsuarioRepository usuarioRepository;
+    private final ProductosRepository productosRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    /**
-     * Consultar todo
-     *
-     * Obtener por id
-     *
-     * Crear
-     *
-     * Actualizar
-     *
-     * Eliminar
-     *
-     *
-     */
-
-
-    //Este lo que hace es devolver todas las opiniones que hay en la base de datos
+    // Obtener todas pero devolviendo entidades (si quieres DTOs, adapta)
     public List<Opiniones> obtenerTodasLasOpiniones() {
         return opinionesRepository.findAll();
     }
 
-    //Este lo que hace es devolver una opinion en concreto buscandola por su id
-    public Opiniones obtenerOpinionPorId(Integer id) {
-        return opinionesRepository.findById(id).orElse(null);
+    // Obtener por id -> devuelve DTO correctamente mapeado
+    public OpinionesDTO obtenerOpinionPorId(Integer id) {
+        return opinionesRepository.findById(id)
+                .map(this::toDTO)
+                .orElse(null);
     }
 
-    //Este lo que hace es crear una nueva opinion y guardarla en la base de datos
-    public OpinionesDTO crearOpinion(OpinionesDTO opinion) {
-        Opiniones nuevaOpinion = new Opiniones();
-        nuevaOpinion.setComentario(opinion.getComentario());
-        nuevaOpinion.setOpinion(opinion.getOpinion());
-        nuevaOpinion.setUsuario(usuarioRepository.getById(opinion.getUsuarioId()));
+    // Crear opinión -> recibe DTO y devuelve DTO
+    public OpinionesDTO crearOpinion(OpinionesDTO dto) {
+        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getUsuarioId()));
 
-        Opiniones opinionGuardada = opinionesRepository.save(nuevaOpinion);
+        Productos producto = productosRepository.findById(dto.getProductoId())
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + dto.getProductoId()));
 
-        OpinionesDTO opinionDTO = new OpinionesDTO();
-        opinionDTO.setId(opinionGuardada.getId());
-        opinionDTO.setComentario(opinionGuardada.getComentario());
-        opinionDTO.setOpinion(opinionGuardada.getOpinion());
-        opinionDTO.setUsuarioId(opinionGuardada.getUsuario().getId());
-        return opinionDTO;
+        Opiniones ent = new Opiniones();
+        ent.setComentario(dto.getComentario());
+        ent.setOpinion(dto.getOpinion());
+        ent.setUsuario(usuario);
+        ent.setProducto(producto); // asegúrate que en tu entidad la propiedad se llame 'producto'
 
+        Opiniones saved = opinionesRepository.save(ent);
+        return toDTO(saved);
     }
 
-    //Este lo que hace es actualizar una opinion existente en la base de datos
-    public Opiniones actualizarOpinion(Integer id, Opiniones opinionActualizada) {
-        Opiniones opinionExistente = opinionesRepository.findById(id).orElse(null);
-        if (opinionExistente != null) {
-            opinionExistente.setComentario(opinionActualizada.getComentario());
-            opinionExistente.setOpinion(opinionActualizada.getOpinion());
-            opinionExistente.setUsuario(opinionActualizada.getUsuario());
-            opinionExistente.setProducto(opinionActualizada.getProducto());
-            return opinionesRepository.save(opinionExistente);
-        }
-        return null;
+    // Actualizar -> recibe DTO (con campos a actualizar) y devuelve DTO
+    public OpinionesDTO actualizarOpinion(Integer id, Opiniones dto) {
+        return opinionesRepository.findById(id).map(opinion -> {
+            if (dto.getComentario() != null) opinion.setComentario(dto.getComentario());
+            if (dto.getOpinion() != null) opinion.setOpinion(dto.getOpinion());
+
+            if (dto.getUsuarioId() != null) {
+                Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
+                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getUsuarioId()));
+                opinion.setUsuario(usuario);
+            }
+
+            if (dto.getProductoId() != null) {
+                Productos producto = productosRepository.findById(dto.getProductoId())
+                        .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + dto.getProductoId()));
+                opinion.setProducto(producto);
+            }
+
+            Opiniones saved = opinionesRepository.save(opinion);
+            return toDTO(saved);
+        }).orElse(null);
     }
 
-    //Este lo que hace es eliminar una opinion de la base de datos buscandola por su id
+    // Eliminar
     public boolean eliminarOpinion(Integer id) {
         if (opinionesRepository.existsById(id)) {
             opinionesRepository.deleteById(id);
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
-    //        ---------------- Métodos adicionales si los necesitamos  ------------------
-
-    //Este lo que hace es devolver todas las opiniones de un producto en concreto buscandolo por su id
-    public List<Opiniones> obtenerOpinionesPorProducto(Integer idProducto) {
-        return opinionesRepository
-                .findAll()
+    // Obtener opiniones por producto (usa repo optimizado)
+    public List<OpinionesDTO> listarOpinionesPorProducto(Integer idProducto) {
+        return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto)
                 .stream()
-                .filter(opinion -> opinion.getProducto().getId().equals(idProducto))
-                .toList();
+                .map(this::toDTO)
+                .collect(Collectors.toList());
     }
 
-    //Listar las opiniones de un producto
-    public List<Opiniones> listarOpinionesPorProducto (Integer idProducto) {
-        return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto);
+    // Mapeadores
+    private OpinionesDTO toDTO(Opiniones op) {
+        OpinionesDTO dto = new OpinionesDTO();
+        dto.setId(op.getId());
+        dto.setComentario(op.getComentario());
+        dto.setOpinion(op.getOpinion());
+        if (op.getUsuario() != null) {
+            dto.setUsuarioId(op.getUsuario().getId());
+            // dto.setNombreUsuario(op.getUsuario().getNombre()); // si tienes campo nombre en Usuario
+        }
+        if (op.getProducto() != null) {
+            dto.setProductoId(op.getProducto().getId());
+            // dto.setNombreProducto(op.getProducto().getNombre()); // si tienes
+        }
+        return dto;
     }
-
 }
