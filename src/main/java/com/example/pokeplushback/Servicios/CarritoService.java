@@ -15,6 +15,7 @@ import com.example.pokeplushback.Repositorios.ProductosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -58,8 +59,8 @@ public class CarritoService {
                 for (ItemsCarrito item : items) {
                     if (item.getProducto().getId().equals(producto.getId())) {
                         item.setCantidad(item.getCantidad() + 1);
-                        Float precioTotal = producto.getPrecio() * item.getCantidad();
-                        item.setPrecioUnitario(Double.valueOf(precioTotal));
+                        BigDecimal precioTotal = producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad()));
+                        item.setPrecioUnitario(precioTotal);
                         itemsCarritoRepository.save(item);
                         break;
                     }
@@ -75,7 +76,7 @@ public class CarritoService {
                         .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
                 nuevoItem.setProducto(productoExistente);
-                nuevoItem.setPrecioUnitario(Double.valueOf(producto.getPrecio()));
+                nuevoItem.setPrecioUnitario(producto.getPrecio());
                 itemsCarritoRepository.save(nuevoItem);
             }
 
@@ -99,7 +100,7 @@ public class CarritoService {
             primerItem.setCantidad(1);
             primerItem.setCarrito(nuevoCarrito);
             primerItem.setProducto(productoExistente);
-            primerItem.setPrecioUnitario(Double.valueOf(producto.getPrecio()));
+            primerItem.setPrecioUnitario(producto.getPrecio());
             itemsCarritoRepository.save(primerItem);
 
             return mapToDTO(nuevoCarrito);
@@ -140,9 +141,9 @@ public class CarritoService {
                 if (item.getId().equals(itemDTO.getIdProducto())) {
                     item.setCantidad(item.getCantidad() - 1);
                     // Actualizar el precio unitario
-                    Float precioProducto = item.getProducto().getPrecio();
-                    Float precioTotal = precioProducto * item.getCantidad();
-                    item.setPrecioUnitario(Double.valueOf(precioTotal));
+                    BigDecimal precioProducto = item.getProducto().getPrecio();
+                    BigDecimal precioTotal = precioProducto.multiply(BigDecimal.valueOf(item.getCantidad()));
+                    item.setPrecioUnitario(precioTotal);
                     itemsCarritoRepository.save(item);
                     return mapToDTO(carrito);
                 }

@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Servicios;
 
+import com.example.pokeplushback.Dto.ProductosDTO;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Service
@@ -43,10 +45,19 @@ public class ProductosService {
     }
 
     //Añadir producto
-    public Productos añadirProductos(Productos producto){
-        producto.setOpiniones(null);
+    public Productos crearProductos(ProductosDTO producto){
 
-        return productosRepository.save(producto);
+        Productos productoNuevo =  new Productos();
+        productoNuevo.setNombre(producto.getNombre());
+        productoNuevo.setDescripcion(producto.getDescripcion());
+        productoNuevo.setPrecio(producto.getPrecio());
+        productoNuevo.setTipo(producto.getTipo());
+        productoNuevo.setFoto(null);
+        productoNuevo.setStock(producto.getStock());
+        productoNuevo.setHabilitado(true);
+        productoNuevo.setOpiniones(null);
+
+        return productosRepository.save(productoNuevo);
     }
 
     //Deshabilitar producto

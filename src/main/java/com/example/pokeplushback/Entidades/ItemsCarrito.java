@@ -3,6 +3,7 @@ package com.example.pokeplushback.Entidades;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 
 
 @Entity
@@ -21,8 +22,8 @@ public class ItemsCarrito {
     @Column(name = "cantidad", nullable = false)
     private Integer cantidad;
 
-    @Column (name = "precio_unitario", nullable = false)
-    private Double precioUnitario;
+    @Column (name = "precio_unitario", scale = 2 ,nullable = false)
+    private BigDecimal precioUnitario;
 
     @ManyToOne
     @JoinColumn(name = "id_carrito")

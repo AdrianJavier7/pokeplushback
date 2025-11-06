@@ -3,6 +3,7 @@ package com.example.pokeplushback.Entidades;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -23,8 +24,8 @@ public class Productos {
     @Column(name = "nombre")
     private String nombre;
 
-    @Column (name="precio")
-    private float precio;
+    @Column (name="precio", scale=2)
+    private BigDecimal precio ;
 
     @Column (name = "tipo")
     private String tipo;
@@ -37,7 +38,7 @@ public class Productos {
 
     @Lob
     @Column(name = "foto", columnDefinition = "bytea")
-    private byte[] foto;
+    private Long foto;
 
     @Column (name= "stock")
     private Integer stock;

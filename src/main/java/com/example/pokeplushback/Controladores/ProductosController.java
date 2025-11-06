@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Controladores;
 
+import com.example.pokeplushback.Dto.ProductosDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
@@ -7,10 +8,7 @@ import com.example.pokeplushback.Servicios.OpinionesService;
 import com.example.pokeplushback.Servicios.ProductosService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -19,8 +17,14 @@ import java.util.List;
 @AllArgsConstructor
 public class ProductosController {
 
+    @Autowired
     private final OpinionesService opinionesService;
     private ProductosService productosService;
+
+    @GetMapping
+    public List<Productos> getProductos(){
+        return productosService.listarProductos();
+    }
 
     @GetMapping("/precio/desc")
     public List<Productos> listarPrecioMayor() {
@@ -37,4 +41,19 @@ public class ProductosController {
     public List<Opiniones> listarOpinionesProducto(@PathVariable Integer id) {
         return opinionesService.listarOpinionesPorProducto(id);
     }
+
+    //Crear producto
+    @PostMapping("/crear_producto")
+    public Productos crearProducto(@RequestBody ProductosDTO producto){
+        return productosService.crearProductos(producto);
+
+
+    }
+
+    //Deshabilitar producto
+    @PostMapping("/deshabilitar_producto/{id}")
+    public Productos deshabilitarProducto(@PathVariable Integer id){
+        return productosService.deshabilitarProductos(id);
+    }
+
 }
