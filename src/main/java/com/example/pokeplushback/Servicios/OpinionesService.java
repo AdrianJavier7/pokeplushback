@@ -1,4 +1,4 @@
-package com.example.pokeplushback.Servicios;
+package com.example.pokeplushback.Services;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
@@ -7,101 +7,119 @@ import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@AllArgsConstructor
-@Transactional
-@Getter
-@Setter
 public class OpinionesService {
 
-    private final OpinionesRepository opinionesRepository;
-    private final UsuarioRepository usuarioRepository;
-    private final ProductosRepository productosRepository;
+    @Autowired
+    private OpinionesRepository opinionesRepository;
 
-    // Obtener todas pero devolviendo entidades (si quieres DTOs, adapta)
-    public List<Opiniones> obtenerTodasLasOpiniones() {
-        return opinionesRepository.findAll();
-    }
+    @Autowired
+    private UsuarioRepository usuarioRepository;
 
-    // Obtener por id -> devuelve DTO correctamente mapeado
-    public OpinionesDTO obtenerOpinionPorId(Integer id) {
-        return opinionesRepository.findById(id)
-                .map(this::toDTO)
-                .orElse(null);
-    }
+    @Autowired
+    private ProductosRepository productosRepository;
 
-    // Crear opinión -> recibe DTO y devuelve DTO
+    // ===================== CREAR =====================
     public OpinionesDTO crearOpinion(OpinionesDTO dto) {
         Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getUsuarioId()));
-
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
         Productos producto = productosRepository.findById(dto.getProductoId())
-                .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + dto.getProductoId()));
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-        Opiniones ent = new Opiniones();
-        ent.setComentario(dto.getComentario());
-        ent.setOpinion(dto.getOpinion());
-        ent.setUsuario(usuario);
-        ent.setProducto(producto); // asegúrate que en tu entidad la propiedad se llame 'producto'
+        Opiniones opinion = new Opiniones();
+        opinion.setUsuario(usuario);
+        opinion.setProducto(producto);
+        opinion.setComentario(dto.getComentario());
+        opinion.setOpinion(dto.getOpinion());
 
-        Opiniones saved = opinionesRepository.save(ent);
-        return toDTO(saved);
-    }
-
-    // Actualizar -> recibe DTO (con campos a actualizar) y devuelve DTO
-    public OpinionesDTO actualizarOpinion(Integer id, @Valid OpinionesDTO dto) {
-        return opinionesRepository.findById(id)
-                .map(existing -> {
-                    existing.setComentario(dto.getComentario());
-                    existing.setOpinion(dto.getOpinion());
-                    // No actualizamos usuario/producto aquí para evitar inconsistencias
-                    Opiniones updated = opinionesRepository.save(existing);
-                    return toDTO(updated);
-                })
-                .orElse(null);
-    }
-
-    // Eliminar
-    public boolean eliminarOpinion(Integer id) {
-        if (opinionesRepository.existsById(id)) {
-            opinionesRepository.deleteById(id);
-            return true;
-        }
-        return false;
-    }
-
-    // Obtener opiniones por producto (usa repo optimizado)
-    public List<OpinionesDTO> listarOpinionesPorProducto(Integer idProducto) {
-        return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto)
-                .stream()
-                .map(this::toDTO)
-                .collect(Collectors.toList());
-    }
-
-    // Mapeadores
-    private OpinionesDTO toDTO(Opiniones op) {
-        OpinionesDTO dto = new OpinionesDTO();
-        dto.setId(op.getId());
-        dto.setComentario(op.getComentario());
-        dto.setOpinion(op.getOpinion());
-        if (op.getUsuario() != null) {
-            dto.setUsuarioId(op.getUsuario().getId());
-            // dto.setNombreUsuario(op.getUsuario().getNombre()); // si tienes campo nombre en Usuario
-        }
-        if (op.getProducto() != null) {
-            dto.setProductoId(op.getProducto().getId());
-            // dto.setNombreProducto(op.getProducto().getNombre()); // si tienes
-        }
+        Opiniones guardada = opinionesRepository.save(opinion);
+        dto.setId(guardada.getId());
         return dto;
+    }
+
+    // ===================== LEER =====================
+    public List<OpinionesDTO> obtenerTodasOpiniones() {
+        return opinionesRepository.findAll().stream().map(o -> {
+            OpinionesDTO dto = new OpinionesDTO();
+            dto.setId(o.getId());
+            dto.setUsuarioId(o.getUsuario().getId());
+            dto.setProductoId(o.getProducto().getId());
+            dto.setComentario(o.getComentario());
+            dto.setOpinion(o.getOpinion());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
+    public OpinionesDTO obtenerOpinionPorId(Integer id) {
+        Opiniones o = opinionesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
+        OpinionesDTO dto = new OpinionesDTO();
+        dto.setId(o.getId());
+        dto.setUsuarioId(o.getUsuario().getId());
+        dto.setProductoId(o.getProducto().getId());
+        dto.setComentario(o.getComentario());
+        dto.setOpinion(o.getOpinion());
+        return dto;
+    }
+
+    // ===================== ACTUALIZAR =====================
+    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO dto) {
+        Opiniones o = opinionesRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
+
+        if (dto.getComentario() != null) o.setComentario(dto.getComentario());
+        if (dto.getOpinion() != null) o.setOpinion(dto.getOpinion());
+
+        // Actualizar usuario o producto solo si se proporcionan
+        if (dto.getUsuarioId() != null) {
+            Usuario u = usuarioRepository.findById(dto.getUsuarioId())
+                    .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+            o.setUsuario(u);
+        }
+
+        if (dto.getProductoId() != null) {
+            Productos p = productosRepository.findById(dto.getProductoId())
+                    .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+            o.setProducto(p);
+        }
+
+        opinionesRepository.save(o);
+        dto.setId(o.getId());
+        return dto;
+    }
+
+    // ===================== ELIMINAR =====================
+    public void eliminarOpinion(Integer id) {
+        if (!opinionesRepository.existsById(id)) {
+            throw new RuntimeException("Opinión no encontrada");
+        }
+        opinionesRepository.deleteById(id);
+    }
+
+    // ===================== LEER POR PRODUCTO ID =====================
+
+    public List<OpinionesDTO> obtenerOpinionesPorProductoId(Integer productoId) {
+        Productos producto = productosRepository.findById(productoId)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        return opinionesRepository.findAll().stream()
+                .filter(o -> o.getProducto().getId().equals(productoId))
+                .map(o -> {
+                    OpinionesDTO dto = new OpinionesDTO();
+                    dto.setId(o.getId());
+                    dto.setUsuarioId(o.getUsuario().getId());
+                    dto.setProductoId(o.getProducto().getId());
+                    dto.setComentario(o.getComentario());
+                    dto.setOpinion(o.getOpinion());
+                    return dto;
+                })
+                .collect(Collectors.toList());
     }
 }
