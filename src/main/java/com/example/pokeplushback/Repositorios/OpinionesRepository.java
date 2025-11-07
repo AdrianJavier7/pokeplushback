@@ -14,7 +14,4 @@ public interface OpinionesRepository extends JpaRepository<Opiniones, Integer> {
     //Lista todas las opiniones del producto, de la más reciente a la más antigua
     List<Opiniones> findByProductoIdOrderByIdDesc (Integer idProducto);
 
-    // buscar por id del usuario
-    List<Opiniones> findByUsuarioId(Integer usuarioId);
-
 }

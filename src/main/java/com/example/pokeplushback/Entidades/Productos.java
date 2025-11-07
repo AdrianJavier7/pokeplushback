@@ -33,7 +33,7 @@ public class Productos {
     private String descripcion;
 
     @Column (name= "habilitado")
-    private boolean habilitado;
+    private Boolean habilitado = true;
 
     @Lob
     @Column(name = "foto", columnDefinition = "bytea")

@@ -33,8 +33,5 @@ public class ProductosController {
     }
 
     //Listar las opiniones de producto, las más recientes primeros
-    @GetMapping("/{id}/opiniones")
-    public List<Opiniones> listarOpinionesProducto(@PathVariable Integer id) {
-        return opinionesService.listarOpinionesPorProducto(id);
-    }
+
 }

@@ -7,6 +7,7 @@ import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,26 +59,16 @@ public class OpinionesService {
     }
 
     // Actualizar -> recibe DTO (con campos a actualizar) y devuelve DTO
-    public OpinionesDTO actualizarOpinion(Integer id, Opiniones dto) {
-        return opinionesRepository.findById(id).map(opinion -> {
-            if (dto.getComentario() != null) opinion.setComentario(dto.getComentario());
-            if (dto.getOpinion() != null) opinion.setOpinion(dto.getOpinion());
-
-            if (dto.getUsuarioId() != null) {
-                Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
-                        .orElseThrow(() -> new RuntimeException("Usuario no encontrado: " + dto.getUsuarioId()));
-                opinion.setUsuario(usuario);
-            }
-
-            if (dto.getProductoId() != null) {
-                Productos producto = productosRepository.findById(dto.getProductoId())
-                        .orElseThrow(() -> new RuntimeException("Producto no encontrado: " + dto.getProductoId()));
-                opinion.setProducto(producto);
-            }
-
-            Opiniones saved = opinionesRepository.save(opinion);
-            return toDTO(saved);
-        }).orElse(null);
+    public OpinionesDTO actualizarOpinion(Integer id, @Valid OpinionesDTO dto) {
+        return opinionesRepository.findById(id)
+                .map(existing -> {
+                    existing.setComentario(dto.getComentario());
+                    existing.setOpinion(dto.getOpinion());
+                    // No actualizamos usuario/producto aquí para evitar inconsistencias
+                    Opiniones updated = opinionesRepository.save(existing);
+                    return toDTO(updated);
+                })
+                .orElse(null);
     }
 
     // Eliminar

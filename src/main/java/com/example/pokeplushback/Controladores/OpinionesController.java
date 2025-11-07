@@ -36,7 +36,7 @@ public class OpinionesController {
     }
 
     // Crear una nueva opinion -> recibe DTO, devuelve DTO (201 Created)
-    @PostMapping
+    @PostMapping("/")
     public ResponseEntity<OpinionesDTO> crearOpinion(@Valid @RequestBody OpinionesDTO opinionDto) {
         OpinionesDTO creado = opinionesService.crearOpinion(opinionDto);
         return ResponseEntity.status(201).body(creado);
@@ -44,16 +44,14 @@ public class OpinionesController {
 
     // Actualizar una opinion existente -> recibe DTO y devuelve DTO
     @PutMapping("/{id}")
-    public ResponseEntity<OpinionesDTO> actualizarOpinion(
-            @PathVariable Integer id,
-            @Valid @RequestBody OpinionesDTO opinionActualizada) {
-
-        OpinionesDTO opinion = opinionesService.actualizarOpinion(id, opinionActualizada);
-        if (opinion != null) {
-            return ResponseEntity.ok(opinion); // ahora coincide: OpinionesDTO -> ResponseEntity<OpinionesDTO>
+    public ResponseEntity<OpinionesDTO> actualizarOpinion(@PathVariable Integer id, @Valid @RequestBody OpinionesDTO opinionDto) {
+        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, opinionDto);
+        if (actualizado != null) {
+            return ResponseEntity.ok(actualizado);
         }
         return ResponseEntity.notFound().build();
     }
+
 
     // Eliminar una opinion por su id
     @DeleteMapping("/{id}")
@@ -71,4 +69,5 @@ public class OpinionesController {
         List<OpinionesDTO> list = opinionesService.listarOpinionesPorProducto(idProducto);
         return ResponseEntity.ok(list);
     }
+
 }
