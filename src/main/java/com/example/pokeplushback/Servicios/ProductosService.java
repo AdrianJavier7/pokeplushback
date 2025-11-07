@@ -73,4 +73,18 @@ public class ProductosService {
         return productosRepository.save(producto);
 
     }
+
+    //Habilitar producto
+    public Productos habilitarProductos(Integer idProducto){
+        Productos producto = productosRepository.findById(idProducto).orElse(null);
+
+        if (producto == null){
+            return null;
+        }
+
+        producto.setHabilitado(true);
+
+        return productosRepository.save(producto);
+
+    }
 }

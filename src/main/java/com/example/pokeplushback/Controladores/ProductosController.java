@@ -56,4 +56,10 @@ public class ProductosController {
         return productosService.deshabilitarProductos(id);
     }
 
+    //Habilitar producto
+    @PostMapping("/habilitar_producto/{id}")
+    public Productos habilitarProducto(@PathVariable Integer id){
+        return productosService.habilitarProductos(id);
+    }
+
 }
