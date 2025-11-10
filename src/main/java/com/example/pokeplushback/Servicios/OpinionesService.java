@@ -44,7 +44,7 @@ public class OpinionesService {
         return dto;
     }
 
-    // ===================== LEER =====================
+    // ===================== LEER TODAS LAS OPINIONES =====================
     public List<OpinionesDTO> obtenerTodasOpiniones() {
         return opinionesRepository.findAll().stream().map(o -> {
             OpinionesDTO dto = new OpinionesDTO();
@@ -57,7 +57,7 @@ public class OpinionesService {
         }).collect(Collectors.toList());
     }
 
-
+    // ===================== LEER POR ID LA OPINION =====================
     public OpinionesDTO obtenerOpinionPorId(Integer id) {
         Opiniones o = opinionesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
@@ -70,7 +70,7 @@ public class OpinionesService {
         return dto;
     }
 
-    // ===================== ACTUALIZAR =====================
+    // ===================== ACTUALIZAR UNA OPINION =====================
     public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO dto) {
         Opiniones o = opinionesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
