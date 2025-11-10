@@ -28,8 +28,9 @@ public class OpinionesController {
 
     // ===================== CREAR =====================
     @PostMapping("/crearcomentario")
-    public ResponseEntity<OpinionesDTO> crearOpinion(@RequestBody OpinionesDTO dto) {
-        OpinionesDTO creado = opinionesService.crearOpinion(dto);
+    public ResponseEntity<OpinionesDTO> crearOpinion(@RequestBody OpinionesDTO dto, @RequestHeader ("Authorization") String Token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
+        OpinionesDTO creado = opinionesService.crearOpinion(dto, perfilUsuario);
         return ResponseEntity.ok(creado);
     }
 
@@ -64,8 +65,10 @@ public class OpinionesController {
 
     // ===================== ACTUALIZAR =====================
     @PutMapping("/actualizarcomentario/{id}")
-    public ResponseEntity<OpinionesDTO> actualizarOpinion(@PathVariable Integer id, @RequestBody OpinionesDTO dto) {
-        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, dto);
+    public ResponseEntity<OpinionesDTO> actualizarOpinion(@RequestHeader ("Authorization") String Token, @PathVariable Integer id) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
+
+        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, perfilUsuario.getId());
         return ResponseEntity.ok(actualizado);
     }
 

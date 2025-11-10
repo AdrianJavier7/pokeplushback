@@ -8,6 +8,7 @@ import com.example.pokeplushback.Repositorios.OpinionesRepository;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.relational.core.sql.In;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -27,9 +28,7 @@ public class OpinionesService {
     private ProductosRepository productosRepository;
 
     // ===================== CREAR =====================
-    public OpinionesDTO crearOpinion(OpinionesDTO dto) {
-        Usuario usuario = usuarioRepository.findById(dto.getUsuarioId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+    public OpinionesDTO crearOpinion(OpinionesDTO dto, Usuario usuario) {
         Productos producto = productosRepository.findById(dto.getProductoId())
                 .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
@@ -38,6 +37,7 @@ public class OpinionesService {
         opinion.setProducto(producto);
         opinion.setComentario(dto.getComentario());
         opinion.setOpinion(dto.getOpinion());
+        opinion.setUsuario(usuario);
 
         Opiniones guardada = opinionesRepository.save(opinion);
         dto.setId(guardada.getId());
@@ -90,29 +90,30 @@ public class OpinionesService {
     }
 
     // ===================== ACTUALIZAR UNA OPINION =====================
-    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO dto) {
+    public OpinionesDTO actualizarOpinion(Integer id, Integer usuarioId) {
         Opiniones o = opinionesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
 
-        if (dto.getComentario() != null) o.setComentario(dto.getComentario());
-        if (dto.getOpinion() != null) o.setOpinion(dto.getOpinion());
+        if (o.getComentario() != null) o.setComentario(o.getComentario());
+        if (o.getOpinion() != null) o.setOpinion(o.getOpinion());
 
         // Actualizar usuario o producto solo si se proporcionan
-        if (dto.getUsuarioId() != null) {
-            Usuario u = usuarioRepository.findById(dto.getUsuarioId())
+        if (usuarioId != null) {
+            Usuario u = usuarioRepository.findById(o.getUsuario().getId())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             o.setUsuario(u);
         }
 
-        if (dto.getProductoId() != null) {
-            Productos p = productosRepository.findById(dto.getProductoId())
+        if (o.getProducto().getId() != null) {
+            Productos p = productosRepository.findById(o.getProducto().getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
             o.setProducto(p);
         }
 
         opinionesRepository.save(o);
-        dto.setId(o.getId());
-        return dto;
+        o.setUsuario(o.getUsuario());
+
+        return obtenerOpinionPorId(o.getId());
     }
 
     // ===================== ELIMINAR =====================
