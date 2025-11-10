@@ -1,6 +1,8 @@
 package com.example.pokeplushback.Controladores;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
+import com.example.pokeplushback.Entidades.Usuario;
+import com.example.pokeplushback.Security.JWTService;
 import com.example.pokeplushback.Servicios.OpinionesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ public class OpinionesController {
 
     @Autowired
     private OpinionesService opinionesService;
+
+    private JWTService jwtService;
 
     // ===================== FINDALL =====================
     @GetMapping("/all")
@@ -47,6 +51,14 @@ public class OpinionesController {
     @GetMapping("/leerporproductoid/{productoId}")
     public ResponseEntity<List<OpinionesDTO>> obtenerOpinionesPorProductoId(@PathVariable Integer productoId) {
         List<OpinionesDTO> opiniones = opinionesService.obtenerOpinionesPorProductoId(productoId);
+        return ResponseEntity.ok(opiniones);
+    }
+
+    // ===================== LEER POR USUARIO ID =====================
+    @GetMapping("/leerporusuarioid/{usuarioId}")
+    public ResponseEntity<List<OpinionesDTO>> obtenerOpinionesPorUsuarioId(@RequestHeader ("Authorization") String Token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
+        List<OpinionesDTO> opiniones = opinionesService.obtenerOpinionesPorUsuarioId(perfilUsuario.getId());
         return ResponseEntity.ok(opiniones);
     }
 

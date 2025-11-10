@@ -70,6 +70,25 @@ public class OpinionesService {
         return dto;
     }
 
+    // ===================== LEER POR USUARIO ID =====================
+    public List<OpinionesDTO> obtenerOpinionesPorUsuarioId(Integer usuarioId) {
+        Usuario usuario = usuarioRepository.findById(usuarioId)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        return opinionesRepository.findAll().stream()
+                .filter(o -> o.getUsuario().getId().equals(usuarioId))
+                .map(o -> {
+                    OpinionesDTO dto = new OpinionesDTO();
+                    dto.setId(o.getId());
+                    dto.setUsuarioId(o.getUsuario().getId());
+                    dto.setProductoId(o.getProducto().getId());
+                    dto.setComentario(o.getComentario());
+                    dto.setOpinion(o.getOpinion());
+                    return dto;
+                })
+                .collect(Collectors.toList());
+    }
+
     // ===================== ACTUALIZAR UNA OPINION =====================
     public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO dto) {
         Opiniones o = opinionesRepository.findById(id)
