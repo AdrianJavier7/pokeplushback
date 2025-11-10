@@ -41,23 +41,26 @@ public class CarritoService {
         return mapToDTO(carrito);
     }
 
-    public CarritoDTO anyadirAlCarrito(ProductosDTO producto) {
+    public CarritoDTO anyadirAlCarrito(Integer idProducto, Usuario usuario) {
 
         // Buscar carrito activo del usuario
-        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(producto.getIdUsuario(), Estados.ACTIVO);
+        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+        Productos producto = productosRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         if (carrito != null && carrito.getId() != null) {
 
             List<ItemsCarrito> items = carrito.getItems();
             List<Productos> productosEnCarrito = itemsCarritoRepository.findProductosByCarritoId(carrito.getId());
 
+
             boolean productoExiste = productosEnCarrito.stream()
-                    .anyMatch(p -> p.getId().equals(producto.getId()));
+                    .anyMatch(p -> p.getId().equals(idProducto));
 
             if (productoExiste) {
                 // Producto ya existe → actualizar cantidad y precio
                 for (ItemsCarrito item : items) {
-                    if (item.getProducto().getId().equals(producto.getId())) {
+                    if (item.getProducto().getId().equals(idProducto)) {
                         item.setCantidad(item.getCantidad() + 1);
                         BigDecimal precioTotal = producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad()));
                         item.setPrecioUnitario(precioTotal);
@@ -71,7 +74,7 @@ public class CarritoService {
                 nuevoItem.setCantidad(1);
                 nuevoItem.setCarrito(carrito);
 
-                // ✅ Obtener producto persistido desde la base de datos
+                //  Obtener producto persistido desde la base de datos
                 Productos productoExistente = productosRepository.findById(producto.getId())
                         .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
@@ -87,7 +90,7 @@ public class CarritoService {
             // No existe carrito → crear uno nuevo
             Carrito nuevoCarrito = new Carrito();
             nuevoCarrito.setUsuario(new Usuario());
-            nuevoCarrito.getUsuario().setId(producto.getIdUsuario());
+            nuevoCarrito.getUsuario().setId(usuario.getId());
             nuevoCarrito.setEstado(Estados.ACTIVO);
             nuevoCarrito.setCreadoEn(LocalDate.now());
             carritoRepository.save(nuevoCarrito);

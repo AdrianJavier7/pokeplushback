@@ -26,8 +26,9 @@ public class CarritoController {
     }
 
     @PostMapping("/anyadir")
-    public CarritoDTO anyadirAlCarrito(@RequestBody ProductosDTO producto) {
-        return carritoService.anyadirAlCarrito(producto);
+    public CarritoDTO anyadirAlCarrito(@PathVariable Integer idProducto, @RequestHeader ("Authorization") String token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.anyadirAlCarrito(idProducto, perfilUsuario);
     }
 
     @PostMapping("/quitar")
