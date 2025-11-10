@@ -1,4 +1,4 @@
-package com.example.pokeplushback.Services;
+package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
@@ -56,6 +56,7 @@ public class OpinionesService {
             return dto;
         }).collect(Collectors.toList());
     }
+
 
     public OpinionesDTO obtenerOpinionPorId(Integer id) {
         Opiniones o = opinionesRepository.findById(id)
