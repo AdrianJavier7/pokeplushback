@@ -17,6 +17,7 @@ public class OpinionesController {
     @Autowired
     private OpinionesService opinionesService;
 
+    @Autowired
     private JWTService jwtService;
 
     // ===================== FINDALL =====================
@@ -36,8 +37,8 @@ public class OpinionesController {
 
     // ===================== LEER =====================
     @GetMapping("/leercomentarios")
-    public ResponseEntity<List<OpinionesDTO>> obtenerTodasOpiniones() {
-        List<OpinionesDTO> opiniones = opinionesService.obtenerTodasOpiniones();
+    public ResponseEntity<List<OpinionesDTO>> obtenerTodosComentarios() {
+        List<OpinionesDTO> opiniones = opinionesService.obtenerTodosComentarios();
         return ResponseEntity.ok(opiniones);
     }
 
@@ -65,10 +66,10 @@ public class OpinionesController {
 
     // ===================== ACTUALIZAR =====================
     @PutMapping("/actualizarcomentario/{id}")
-    public ResponseEntity<OpinionesDTO> actualizarOpinion(@RequestHeader ("Authorization") String Token, @PathVariable Integer id) {
+    public ResponseEntity<OpinionesDTO> actualizarOpinion(@RequestHeader ("Authorization") String Token, @PathVariable Integer id, @RequestBody OpinionesDTO dto) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
-
-        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, perfilUsuario.getId());
+        dto.setUsuarioId(perfilUsuario.getId());
+        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, dto);
         return ResponseEntity.ok(actualizado);
     }
 

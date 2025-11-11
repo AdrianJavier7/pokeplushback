@@ -44,6 +44,17 @@ public class OpinionesService {
         return dto;
     }
 
+    // ===================== LEER =====================
+    public List<OpinionesDTO> obtenerTodosComentarios() {
+        return opinionesRepository.findAll().stream().map(o -> {
+            OpinionesDTO dto = new OpinionesDTO();
+            dto.setId(o.getId());
+            dto.setUsuarioId(o.getUsuario().getId());
+            dto.setComentario(o.getComentario());
+            return dto;
+        }).collect(Collectors.toList());
+    }
+
     // ===================== LEER TODAS LAS OPINIONES =====================
     public List<OpinionesDTO> obtenerTodasOpiniones() {
         return opinionesRepository.findAll().stream().map(o -> {
@@ -90,30 +101,28 @@ public class OpinionesService {
     }
 
     // ===================== ACTUALIZAR UNA OPINION =====================
-    public OpinionesDTO actualizarOpinion(Integer id, Integer usuarioId) {
+    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO dto) {
         Opiniones o = opinionesRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Opinión no encontrada"));
 
-        if (o.getComentario() != null) o.setComentario(o.getComentario());
-        if (o.getOpinion() != null) o.setOpinion(o.getOpinion());
+        // Actualizar campos si vienen en el DTO
+        if (dto.getComentario() != null) o.setComentario(dto.getComentario());
+        if (dto.getOpinion() != null) o.setOpinion(dto.getOpinion());
 
-        // Actualizar usuario o producto solo si se proporcionan
-        if (usuarioId != null) {
-            Usuario u = usuarioRepository.findById(o.getUsuario().getId())
+        if (dto.getUsuarioId() != null) {
+            Usuario u = usuarioRepository.findById(dto.getUsuarioId())
                     .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
             o.setUsuario(u);
         }
 
-        if (o.getProducto().getId() != null) {
-            Productos p = productosRepository.findById(o.getProducto().getId())
+        if (dto.getProductoId() != null) {
+            Productos p = productosRepository.findById(dto.getProductoId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
             o.setProducto(p);
         }
 
-        opinionesRepository.save(o);
-        o.setUsuario(o.getUsuario());
-
-        return obtenerOpinionPorId(o.getId());
+        Opiniones actualizado = opinionesRepository.save(o);
+        return obtenerOpinionPorId(actualizado.getId());
     }
 
     // ===================== ELIMINAR =====================
