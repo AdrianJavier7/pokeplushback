@@ -36,7 +36,7 @@ public class OpinionesController {
     }
 
     //Crear una nueva opinion
-    @PostMapping
+    @PostMapping("/crear-opinion")
     public OpinionesDTO crearOpinion(@RequestBody OpinionesDTO opinion) {
         return opinionesService.crearOpinion(opinion);
     }

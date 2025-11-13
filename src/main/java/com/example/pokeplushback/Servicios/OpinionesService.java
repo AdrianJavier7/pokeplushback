@@ -4,6 +4,7 @@ import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
+import com.example.pokeplushback.Repositorios.ProductosRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +20,8 @@ public class OpinionesService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+    @Autowired
+    private ProductosRepository productosRepository;
 
     /**
      * Consultar todo
@@ -51,6 +54,7 @@ public class OpinionesService {
         nuevaOpinion.setComentario(opinion.getComentario());
         nuevaOpinion.setOpinion(opinion.getOpinion());
         nuevaOpinion.setUsuario(usuarioRepository.getById(opinion.getUsuarioId()));
+        nuevaOpinion.setProducto(productosRepository.getById(opinion.getProductoId()));
 
         Opiniones opinionGuardada = opinionesRepository.save(nuevaOpinion);
 
@@ -59,6 +63,7 @@ public class OpinionesService {
         opinionDTO.setComentario(opinionGuardada.getComentario());
         opinionDTO.setOpinion(opinionGuardada.getOpinion());
         opinionDTO.setUsuarioId(opinionGuardada.getUsuario().getId());
+        opinionDTO.setProductoId(opinionGuardada.getProducto().getId());
         return opinionDTO;
 
     }

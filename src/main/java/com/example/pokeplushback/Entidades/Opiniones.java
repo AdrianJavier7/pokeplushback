@@ -3,6 +3,8 @@ package com.example.pokeplushback.Entidades;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
+
 @Entity
 @Table(name = "opiniones", schema = "pokeplush", catalog = "postgres")
 @AllArgsConstructor
@@ -21,8 +23,8 @@ public class Opiniones {
     @Column(name = "comentario")
     private String comentario;
 
-    @Column(name = "opinion")
-    private Float opinion;
+    @Column(name = "opinion", scale=2)
+    private BigDecimal opinion;
 
     @ManyToOne
     @JoinColumn(name = "id_usuario")
