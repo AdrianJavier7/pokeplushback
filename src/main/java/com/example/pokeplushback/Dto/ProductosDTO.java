@@ -1,5 +1,8 @@
 package com.example.pokeplushback.Dto;
 
+import com.example.pokeplushback.Enums.Tipos;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import lombok.*;
 
 import java.math.BigDecimal;
@@ -13,7 +16,8 @@ public class ProductosDTO {
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
-    private String tipo;
+    @Enumerated(EnumType.STRING)
+    private Tipos tipo;
     private Long foto;
     private int stock;
     private boolean habilitado;
