@@ -88,4 +88,8 @@ public class ProductosService {
         return productosRepository.save(producto);
 
     }
+
+    public Productos obtenerProductoPorId(Integer id) {
+        return productosRepository.findById(id).orElse(null);
+    }
 }

@@ -47,5 +47,4 @@ public class Productos {
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<Opiniones> opiniones;
-
 }
