@@ -131,7 +131,7 @@ public class ProductosService {
             dto.setPrecio(producto.getPrecio());
             dto.setTipo(producto.getTipo());
 
-           byte[] fotoBytes = leerImagenDesdeOid(producto.getFoto());
+            byte[] fotoBytes = leerImagenDesdeOid(producto.getFoto());
             String base64 = java.util.Base64.getEncoder().encodeToString(fotoBytes);
             dto.setFoto(base64);
 

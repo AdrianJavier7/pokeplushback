@@ -39,7 +39,7 @@ public class Productos {
     private Boolean habilitado = true;
 
     @Lob
-    @Column(name = "foto", columnDefinition = "bytea")
+    @Column(name = "foto")
     private Long foto;
 
     @Column (name= "stock")
