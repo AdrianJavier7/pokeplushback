@@ -7,9 +7,12 @@ import com.example.pokeplushback.Servicios.OpinionesService;
 import com.example.pokeplushback.Servicios.ProductosService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Base64;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -28,16 +31,24 @@ public class ProductosController {
     public List<ProductosDTO> getProductos(){
 
         return productosService.listarProductos().stream()
-                .map(p -> new ProductosDTO(
-                        p.getId(),
-                        p.getNombre(),
-                        p.getDescripcion(),
-                        p.getPrecio(),
-                        p.getTipo(),
-                        null, // foto
-                        p.getStock(),
-                        p.getHabilitado()
-                )).collect(Collectors.toList());
+                .map(p -> {
+                    String base64 = null;
+                    if (p.getFoto() != null) {
+                        byte[] fotoBytes = productosService.leerImagenDesdeOid(p.getFoto());
+                        base64 = Base64.getEncoder().encodeToString(fotoBytes);
+                    }
+                    return new ProductosDTO(
+                            p.getId(),
+                            p.getNombre(),
+                            p.getDescripcion(),
+                            p.getPrecio(),
+                            p.getTipo(),
+                            base64,
+                            p.getStock(),
+                            p.getHabilitado()
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     //Obtener producto
@@ -48,13 +59,16 @@ public class ProductosController {
             return ResponseEntity.notFound().build();
         }
 
+        byte[] fotoBytes = productosService.leerImagenDesdeOid(producto.getFoto());
+        String base64 = Base64.getEncoder().encodeToString(fotoBytes);
+
         ProductosDTO productoDTO = new ProductosDTO(
                 producto.getId(),
                 producto.getNombre(),
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getTipo(),
-                null, // foto
+                base64,
                 producto.getStock(),
                 producto.getHabilitado()
         );
@@ -80,10 +94,15 @@ public class ProductosController {
     }
 
     //Crear producto
-    @PostMapping("/crear_producto")
-    public Productos crearProducto(@RequestBody ProductosDTO producto){
-        return productosService.crearProductos(producto);
+    @PostMapping(value ="/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Productos crearProducto(@RequestPart ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
+    ) throws Exception{
 
+        if(foto != null && !foto.isEmpty()) {
+            return productosService.crearProductosConFoto(producto, productosService.guardarFotoComoLargeObject(foto));
+        } else {
+            return productosService.crearProductos(producto);
+        }
 
     }
 

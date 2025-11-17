@@ -6,11 +6,10 @@ import com.example.pokeplushback.Servicios.EmailService;
 import com.example.pokeplushback.Servicios.UsuarioService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,8 +22,14 @@ public class AuthController {
     private EmailService emailService;
 
     // Endpoint para el registro de usuarios
-    @PostMapping("/registro")
-    public Usuario registro(@RequestBody RegistroDTO registroDTO){
+    @PostMapping(value ="/registro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Usuario registro(@RequestPart RegistroDTO registroDTO, @RequestPart(value = "foto", required = false) MultipartFile foto) throws Exception {
+
+        if(foto != null){
+            Long oid = service.guardarFotoComoLargeObject(foto);
+            return service.registrarUsuarioConFoto(registroDTO, oid);
+        }
+
         return service.registrarUsuario(registroDTO);
     }
 

@@ -18,7 +18,7 @@ public class ProductosDTO {
     private BigDecimal precio;
     @Enumerated(EnumType.STRING)
     private Tipos tipo;
-    private Long foto;
+    private String foto;
     private int stock;
     private boolean habilitado;
 

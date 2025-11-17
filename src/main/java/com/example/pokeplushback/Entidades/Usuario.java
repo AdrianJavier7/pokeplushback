@@ -47,7 +47,8 @@ public class Usuario implements UserDetails {
     private String telefono;
 
     @Column(name = "foto")
-    private String foto;
+    @Lob
+    private Long foto;
 
     @Column(name = "password")
     private String password;

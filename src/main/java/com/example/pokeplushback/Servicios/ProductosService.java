@@ -6,11 +6,17 @@ import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Enums.Tipos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
+import org.postgresql.PGConnection;
+import org.postgresql.largeobject.LargeObject;
+import org.postgresql.largeobject.LargeObjectManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.sql.DataSource;
 import java.math.BigDecimal;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,6 +25,9 @@ public class ProductosService {
 
     @Autowired
     private ProductosRepository productosRepository;
+
+    @Autowired
+    private DataSource dataSource;
 
     //Listar todos los productos
     public List<Productos> listarProductos(){
@@ -55,6 +64,21 @@ public class ProductosService {
         productoNuevo.setPrecio(producto.getPrecio());
         productoNuevo.setTipo(producto.getTipo());
         productoNuevo.setFoto(null);
+        productoNuevo.setStock(producto.getStock());
+        productoNuevo.setHabilitado(true);
+        productoNuevo.setOpiniones(null);
+
+        return productosRepository.save(productoNuevo);
+    }
+
+    public Productos crearProductosConFoto(ProductosDTO producto, Long oid){
+
+        Productos productoNuevo =  new Productos();
+        productoNuevo.setNombre(producto.getNombre());
+        productoNuevo.setDescripcion(producto.getDescripcion());
+        productoNuevo.setPrecio(producto.getPrecio());
+        productoNuevo.setTipo(producto.getTipo());
+        productoNuevo.setFoto(oid);
         productoNuevo.setStock(producto.getStock());
         productoNuevo.setHabilitado(true);
         productoNuevo.setOpiniones(null);
@@ -106,13 +130,53 @@ public class ProductosService {
             dto.setDescripcion(producto.getDescripcion());
             dto.setPrecio(producto.getPrecio());
             dto.setTipo(producto.getTipo());
-            dto.setFoto(producto.getFoto());
+
+           byte[] fotoBytes = leerImagenDesdeOid(producto.getFoto());
+            String base64 = java.util.Base64.getEncoder().encodeToString(fotoBytes);
+            dto.setFoto(base64);
+
             dto.setStock(producto.getStock());
             dto.setHabilitado(producto.getHabilitado());
             productosDTO.add(dto);
         }
 
         return productosDTO;
+    }
+
+    // Guardar una foto como Large Object en PostgreSQL y devolver su OID
+    public Long guardarFotoComoLargeObject(MultipartFile file) throws Exception {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            LargeObjectManager lobj = conn.unwrap(PGConnection.class).getLargeObjectAPI();
+
+            long oid = lobj.createLO(LargeObjectManager.WRITE);
+            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            obj.write(file.getBytes());
+            obj.close();
+
+            conn.commit();
+            return oid;
+        }
+    }
+
+    // Leer una imagen desde un OID de Large Object en PostgreSQL
+    public byte[] leerImagenDesdeOid(Long oid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            // Usamos PGConnection para acceder a LargeObjectManager, que no viene por defecto en JDBC
+            org.postgresql.PGConnection pgConn = connection.unwrap(org.postgresql.PGConnection.class);
+            LargeObjectManager lobj = pgConn.getLargeObjectAPI();
+
+            LargeObject obj = lobj.open(oid, LargeObjectManager.READ);
+            byte[] data = new byte[obj.size()];
+            obj.read(data, 0, obj.size());
+            obj.close();
+
+            connection.commit();
+            return data;
+        } catch (Exception e) {
+            throw new RuntimeException("Error leyendo imagen por OID", e);
+        }
     }
 
 }

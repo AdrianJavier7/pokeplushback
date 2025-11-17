@@ -14,15 +14,22 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
+import org.postgresql.largeobject.LargeObjectManager;
+import org.postgresql.largeobject.LargeObject;
+import org.postgresql.PGConnection;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
 import java.util.Date;
 import java.util.Optional;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
+
 
 @Service
 public class UsuarioService implements UserDetailsService {
+
     @Autowired
     private UsuarioRepository usuarioRepository;
 
@@ -31,6 +38,9 @@ public class UsuarioService implements UserDetailsService {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
+    private DataSource dataSource;
 
     @Autowired
     private EmailService emailService;
@@ -42,6 +52,24 @@ public class UsuarioService implements UserDetailsService {
     }
 
     // Metodo para registrar un nuevo usuario
+    public Usuario registrarUsuarioConFoto(RegistroDTO dto, Long oid){
+        Optional<Usuario> existente = usuarioRepository.findByEmail(dto.getEmail());
+        if (existente.isPresent()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "El correo ya está registrado");
+        }
+
+        Usuario nuevoUsuario = new Usuario();
+        nuevoUsuario.setEmail(dto.getEmail());
+        nuevoUsuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        nuevoUsuario.setNivel(Nivel.USUARIO);
+        nuevoUsuario.setFecha_registro(new Date());
+        nuevoUsuario.setVerificado(false);
+        nuevoUsuario.setFoto(oid);
+
+        Usuario usuarioGuardado = usuarioRepository.save(nuevoUsuario);
+        return usuarioGuardado;
+    }
+
     public Usuario registrarUsuario(RegistroDTO dto){
         Optional<Usuario> existente = usuarioRepository.findByEmail(dto.getEmail());
         if (existente.isPresent()) {
@@ -52,6 +80,7 @@ public class UsuarioService implements UserDetailsService {
         nuevoUsuario.setEmail(dto.getEmail());
         nuevoUsuario.setPassword(passwordEncoder.encode(dto.getPassword()));
         nuevoUsuario.setNivel(Nivel.USUARIO);
+        nuevoUsuario.setFoto(null);
         nuevoUsuario.setFecha_registro(new Date());
         nuevoUsuario.setVerificado(false);
 
@@ -187,5 +216,41 @@ public class UsuarioService implements UserDetailsService {
             sb.append(rnd.nextInt(10));
         }
         return sb.toString();
+    }
+
+    // Guardar una foto como Large Object en PostgreSQL y devolver su OID
+    public Long guardarFotoComoLargeObject(MultipartFile file) throws Exception {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            LargeObjectManager lobj = conn.unwrap(PGConnection.class).getLargeObjectAPI();
+
+            long oid = lobj.createLO(LargeObjectManager.WRITE);
+            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            obj.write(file.getBytes());
+            obj.close();
+
+            conn.commit();
+            return oid;
+        }
+    }
+
+    // Leer una imagen desde un OID de Large Object en PostgreSQL
+    public byte[] leerImagenDesdeOid(Long oid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            // Usamos PGConnection para acceder a LargeObjectManager, que no viene por defecto en JDBC
+            org.postgresql.PGConnection pgConn = connection.unwrap(org.postgresql.PGConnection.class);
+            LargeObjectManager lobj = pgConn.getLargeObjectAPI();
+
+            LargeObject obj = lobj.open(oid, LargeObjectManager.READ);
+            byte[] data = new byte[obj.size()];
+            obj.read(data, 0, obj.size());
+            obj.close();
+
+            connection.commit();
+            return data;
+        } catch (Exception e) {
+            throw new RuntimeException("Error leyendo imagen por OID", e);
+        }
     }
 }

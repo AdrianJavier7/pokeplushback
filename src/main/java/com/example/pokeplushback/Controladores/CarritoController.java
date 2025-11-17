@@ -19,7 +19,7 @@ public class CarritoController {
     private JWTService jwtService;
 
     @GetMapping("/obtener")
-    public CarritoDTO obtenerCarrito(@RequestHeader ("Authorization") String token) {
+        public CarritoDTO obtenerCarrito(@RequestHeader ("Authorization") String token) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
 
         return carritoService.getCarritoUsuario(perfilUsuario);
