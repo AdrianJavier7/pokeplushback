@@ -128,6 +128,7 @@ public class CarritoService {
             itemDTO.setCantidad(item.getCantidad());
             itemDTO.setPrecioUnitario(item.getPrecioUnitario());
             itemDTO.setIdCarrito(carrito.getId());
+            itemDTO.setIdProducto(item.getProducto().getId());
             itemsDTO.add(itemDTO);
         }
         dto.setItems(itemsDTO);
@@ -136,6 +137,7 @@ public class CarritoService {
 
 
     public CarritoDTO QuitarCantidadItemCarrito(ItemDTO itemDTO) {
+
         // Obtener los items del carrito
         Carrito carrito = carritoRepository.findById(itemDTO.getIdCarrito()).orElse(null);
         if (carrito != null) {
@@ -155,7 +157,7 @@ public class CarritoService {
         return null;
     }
 
-
+    // Eliminarlo completo
     public CarritoDTO borrarItemCarrito(Integer idItem){
         Optional<ItemsCarrito> itemOpt = itemsCarritoRepository.findById(idItem);
         if (itemOpt.isPresent()) {
