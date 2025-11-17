@@ -23,12 +23,7 @@ public class AuthController {
 
     // Endpoint para el registro de usuarios
     @PostMapping(value ="/registro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Usuario registro(@RequestPart RegistroDTO registroDTO, @RequestPart(value = "foto", required = false) MultipartFile foto) throws Exception {
-
-        if(foto != null){
-            Long oid = service.guardarFotoComoLargeObject(foto);
-            return service.registrarUsuarioConFoto(registroDTO, oid);
-        }
+    public Usuario registro(@RequestBody RegistroDTO registroDTO) {
 
         return service.registrarUsuario(registroDTO);
     }
