@@ -53,8 +53,18 @@ public class OpinionesService {
     }
 
     //Este lo que hace es devolver una opinion en concreto buscandola por su id
-    public Opiniones obtenerOpinionPorId(Integer id) {
-        return opinionesRepository.findById(id).orElse(null);
+    public OpinionesDTO obtenerOpinionPorId(Integer id) {
+        Opiniones opinion = opinionesRepository.findById(id).orElse(null);
+        if (opinion != null) {
+            OpinionesDTO dto = new OpinionesDTO();
+            dto.setId(opinion.getId());
+            dto.setComentario(opinion.getComentario());
+            dto.setOpinion(opinion.getOpinion());
+            dto.setUsuarioId(opinion.getUsuario().getId());
+            dto.setProductoId(opinion.getProducto().getId());
+            return dto;
+        }
+        return null;
     }
 
     //Este lo que hace es crear una nueva opinion y guardarla en la base de datos
@@ -78,14 +88,23 @@ public class OpinionesService {
     }
 
     //Este lo que hace es actualizar una opinion existente en la base de datos
-    public Opiniones actualizarOpinion(Integer id, Opiniones opinionActualizada) {
+    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO opinionActualizada) {
         Opiniones opinionExistente = opinionesRepository.findById(id).orElse(null);
         if (opinionExistente != null) {
             opinionExistente.setComentario(opinionActualizada.getComentario());
             opinionExistente.setOpinion(opinionActualizada.getOpinion());
-            opinionExistente.setUsuario(opinionActualizada.getUsuario());
-            opinionExistente.setProducto(opinionActualizada.getProducto());
-            return opinionesRepository.save(opinionExistente);
+            opinionExistente.setUsuario(usuarioRepository.getById(opinionActualizada.getUsuarioId()));
+            opinionExistente.setProducto(productosRepository.getById(opinionActualizada.getProductoId()));
+
+            Opiniones opinionGuardada = opinionesRepository.save(opinionExistente);
+
+            OpinionesDTO dto = new OpinionesDTO();
+            dto.setId(opinionGuardada.getId());
+            dto.setComentario(opinionGuardada.getComentario());
+            dto.setOpinion(opinionGuardada.getOpinion());
+            dto.setUsuarioId(opinionGuardada.getUsuario().getId());
+            dto.setProductoId(opinionGuardada.getProducto().getId());
+            return dto;
         }
         return null;
     }
@@ -103,11 +122,20 @@ public class OpinionesService {
     //        ---------------- Métodos adicionales si los necesitamos  ------------------
 
     //Este lo que hace es devolver todas las opiniones de un producto en concreto buscandolo por su id
-    public List<Opiniones> obtenerOpinionesPorProducto(Integer idProducto) {
+    public List<OpinionesDTO> obtenerOpinionesPorProducto(Integer idProducto) {
         return opinionesRepository
                 .findAll()
                 .stream()
                 .filter(opinion -> opinion.getProducto().getId().equals(idProducto))
+                .map(opinion -> {
+                    OpinionesDTO dto = new OpinionesDTO();
+                    dto.setId(opinion.getId());
+                    dto.setComentario(opinion.getComentario());
+                    dto.setOpinion(opinion.getOpinion());
+                    dto.setUsuarioId(opinion.getUsuario().getId());
+                    dto.setProductoId(opinion.getProducto().getId());
+                    return dto;
+                })
                 .toList();
     }
 
