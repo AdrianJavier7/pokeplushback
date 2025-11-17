@@ -21,7 +21,7 @@ public class OpinionesController {
 
     //Obtener todas las opiniones
     @GetMapping("/all")
-    public List<Opiniones> obtenerTodasLasOpiniones() {
+    public List<OpinionesDTO> obtenerTodasLasOpiniones() {
         return opinionesService.obtenerTodasLasOpiniones();
     }
 

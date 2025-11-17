@@ -39,8 +39,17 @@ public class OpinionesService {
 
 
     //Este lo que hace es devolver todas las opiniones que hay en la base de datos
-    public List<Opiniones> obtenerTodasLasOpiniones() {
-        return opinionesRepository.findAll();
+    public List<OpinionesDTO> obtenerTodasLasOpiniones() {
+        List<Opiniones> opiniones = opinionesRepository.findAll();
+        return opiniones.stream().map(opinion -> {
+            OpinionesDTO dto = new OpinionesDTO();
+            dto.setId(opinion.getId());
+            dto.setComentario(opinion.getComentario());
+            dto.setOpinion(opinion.getOpinion());
+            dto.setUsuarioId(opinion.getUsuario().getId());
+            dto.setProductoId(opinion.getProducto().getId());
+            return dto;
+        }).toList();
     }
 
     //Este lo que hace es devolver una opinion en concreto buscandola por su id
