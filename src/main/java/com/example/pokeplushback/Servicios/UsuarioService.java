@@ -52,7 +52,7 @@ public class UsuarioService implements UserDetailsService {
     }
 
     // Metodo para registrar un nuevo usuario
-    public Usuario registrarUsuarioConFoto(RegistroDTO dto, Long oid){
+    public Usuario registrarUsuarioConFoto(RegistroDTO dto){
         Optional<Usuario> existente = usuarioRepository.findByEmail(dto.getEmail());
         if (existente.isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "El correo ya está registrado");
@@ -64,7 +64,7 @@ public class UsuarioService implements UserDetailsService {
         nuevoUsuario.setNivel(Nivel.USUARIO);
         nuevoUsuario.setFecha_registro(new Date());
         nuevoUsuario.setVerificado(false);
-        nuevoUsuario.setFoto(oid);
+        nuevoUsuario.setFoto(null);
 
         Usuario usuarioGuardado = usuarioRepository.save(nuevoUsuario);
         return usuarioGuardado;

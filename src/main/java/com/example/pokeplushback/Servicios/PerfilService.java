@@ -28,7 +28,7 @@ public class PerfilService {
         dto.setFechaNacimiento(perfil.getFecha_nacimiento());
         dto.setFechaRegistro(perfil.getFecha_registro());
         dto.setTelefono(perfil.getTelefono());
-        dto.setFoto(perfil.getFoto().toString());
+        dto.setFoto(perfil.getFoto());
         dto.setPassword(perfil.getPassword());
         dto.setNivel(perfil.getNivel());
         dto.setCodigoVerificacion(perfil.getCodigo_verificacion());
@@ -48,7 +48,7 @@ public class PerfilService {
         perfilLogueado.setDescripcion(perfilDTO.getDescripcion());
         perfilLogueado.setFecha_nacimiento(perfilDTO.getFechaNacimiento());
         perfilLogueado.setTelefono(perfilDTO.getTelefono());
-        perfilLogueado.setFoto(Long.parseLong(perfilDTO.getFoto()));
+        perfilLogueado.setFoto((perfilDTO.getFoto()));
         perfilLogueado.setEmail(perfilDTO.getEmail());
 
         if (perfilDTO.getDireccion() != null) {

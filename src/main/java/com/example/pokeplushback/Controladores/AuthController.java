@@ -22,7 +22,7 @@ public class AuthController {
     private EmailService emailService;
 
     // Endpoint para el registro de usuarios
-    @PostMapping(value ="/registro", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value ="/registro")
     public Usuario registro(@RequestBody RegistroDTO registroDTO) {
 
         return service.registrarUsuario(registroDTO);
