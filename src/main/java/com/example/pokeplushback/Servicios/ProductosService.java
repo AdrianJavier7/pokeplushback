@@ -4,6 +4,7 @@ import com.example.pokeplushback.Dto.ProductosDTO;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
+import com.example.pokeplushback.Enums.Tipos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -86,5 +87,9 @@ public class ProductosService {
 
         return productosRepository.save(producto);
 
+    }
+
+    public Productos obtenerProductoPorId(Integer id) {
+        return productosRepository.findById(id).orElse(null);
     }
 }

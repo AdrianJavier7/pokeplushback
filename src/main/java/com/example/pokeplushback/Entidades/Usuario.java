@@ -106,4 +106,9 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return UserDetails.super.isEnabled();
     }
+
+    // Metodo para verificar si el usuario ha sido verificado
+    public boolean isVerificado() {
+        return Boolean.TRUE.equals(this.verificado);
+    }
 }

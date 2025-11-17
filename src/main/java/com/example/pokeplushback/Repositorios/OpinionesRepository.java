@@ -11,4 +11,5 @@ import java.util.List;
 @Repository
 public interface OpinionesRepository extends JpaRepository<Opiniones, Integer> {
 
+    List<Opiniones> findByProductoIdOrderByIdDesc(Integer idProducto);
 }

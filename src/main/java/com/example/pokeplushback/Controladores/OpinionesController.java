@@ -1,14 +1,14 @@
 package com.example.pokeplushback.Controladores;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
-import com.example.pokeplushback.Entidades.Usuario;
-import com.example.pokeplushback.Security.JWTService;
+import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Servicios.OpinionesService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+
 
 @RestController
 @RequestMapping("/opiniones")
@@ -17,65 +17,55 @@ public class OpinionesController {
     @Autowired
     private OpinionesService opinionesService;
 
-    private JWTService jwtService;
+    //        ------------- los metodos CRUD --------------
 
-    // ===================== FINDALL =====================
+    //Obtener todas las opiniones
     @GetMapping("/all")
-    public ResponseEntity<List<OpinionesDTO>> findAll() {
-        List<OpinionesDTO> opiniones = opinionesService.obtenerTodasOpiniones();
-        return ResponseEntity.ok(opiniones);
+    public List<Opiniones> obtenerTodasLasOpiniones() {
+        return opinionesService.obtenerTodasLasOpiniones();
     }
 
-    // ===================== CREAR =====================
-    @PostMapping("/crearcomentario")
-    public ResponseEntity<OpinionesDTO> crearOpinion(@RequestBody OpinionesDTO dto, @RequestHeader ("Authorization") String Token) {
-        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
-        OpinionesDTO creado = opinionesService.crearOpinion(dto, perfilUsuario);
-        return ResponseEntity.ok(creado);
+    //Obtener una opinion por su id
+    @GetMapping("/{id}")
+    public ResponseEntity<Opiniones> getOpinionPorId(@PathVariable Integer id) {
+        Opiniones opinion = opinionesService.obtenerOpinionPorId(id);
+        if (opinion != null) {
+            return ResponseEntity.ok(opinion);
+        }
+        return ResponseEntity.notFound().build();
     }
 
-    // ===================== LEER =====================
-    @GetMapping("/leercomentarios")
-    public ResponseEntity<List<OpinionesDTO>> obtenerTodasOpiniones() {
-        List<OpinionesDTO> opiniones = opinionesService.obtenerTodasOpiniones();
-        return ResponseEntity.ok(opiniones);
+    //Crear una nueva opinion
+    @PostMapping("/crear-opinion")
+    public OpinionesDTO crearOpinion(@RequestBody OpinionesDTO opinion) {
+        return opinionesService.crearOpinion(opinion);
     }
 
-    // ===================== LEER POR ID =====================
-    @GetMapping("/leerporid/{id}")
-    public ResponseEntity<OpinionesDTO> obtenerOpinionPorId(@PathVariable Integer id) {
-        OpinionesDTO dto = opinionesService.obtenerOpinionPorId(id);
-        return ResponseEntity.ok(dto);
+    //Actualizar una opinion existente
+    @PutMapping("/{id}")
+    public ResponseEntity<Opiniones> actualizarOpinion(@PathVariable Integer id, @RequestBody Opiniones opinionActualizada) {
+        Opiniones opinion = opinionesService.actualizarOpinion(id, opinionActualizada);
+        if (opinion != null) {
+            return ResponseEntity.ok(opinion); //esto es un 200 OK que es lo que devuelve por defecto el metodo ok()
+        }
+        return ResponseEntity.notFound().build(); // 404 Not Found
     }
 
-    // ===================== LEER POR PRODUCTO ID =====================
-    @GetMapping("/leerporproductoid/{productoId}")
-    public ResponseEntity<List<OpinionesDTO>> obtenerOpinionesPorProductoId(@PathVariable Integer productoId) {
-        List<OpinionesDTO> opiniones = opinionesService.obtenerOpinionesPorProductoId(productoId);
-        return ResponseEntity.ok(opiniones);
-    }
-
-    // ===================== LEER POR USUARIO ID =====================
-    @GetMapping("/leerporusuarioid/{usuarioId}")
-    public ResponseEntity<List<OpinionesDTO>> obtenerOpinionesPorUsuarioId(@RequestHeader ("Authorization") String Token) {
-        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
-        List<OpinionesDTO> opiniones = opinionesService.obtenerOpinionesPorUsuarioId(perfilUsuario.getId());
-        return ResponseEntity.ok(opiniones);
-    }
-
-    // ===================== ACTUALIZAR =====================
-    @PutMapping("/actualizarcomentario/{id}")
-    public ResponseEntity<OpinionesDTO> actualizarOpinion(@RequestHeader ("Authorization") String Token, @PathVariable Integer id) {
-        Usuario perfilUsuario = jwtService.extraerPerfilToken(Token);
-
-        OpinionesDTO actualizado = opinionesService.actualizarOpinion(id, perfilUsuario.getId());
-        return ResponseEntity.ok(actualizado);
-    }
-
-    // ===================== ELIMINAR =====================
-    @DeleteMapping("/eliminarcomentario/{id}")
+    //Eliminar una opinion por su id
+    @DeleteMapping("/{id}")
     public ResponseEntity<Void> eliminarOpinion(@PathVariable Integer id) {
-        opinionesService.eliminarOpinion(id);
-        return ResponseEntity.noContent().build();
+        boolean eliminado = opinionesService.eliminarOpinion(id);
+        if (eliminado) {
+            return ResponseEntity.noContent().build(); // 204 No Content
+        }
+        return ResponseEntity.notFound().build(); // 404 Not Found
+    }
+
+
+    //        ------------- los metodos adicionales --------------
+
+    @GetMapping("/producto/{idProducto}")
+    public List<Opiniones> obtenerOpinionesPorProducto(@PathVariable Integer idProducto) {
+        return opinionesService.obtenerOpinionesPorProducto(idProducto);
     }
 }
