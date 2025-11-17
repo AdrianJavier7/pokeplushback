@@ -140,8 +140,21 @@ public class OpinionesService {
     }
 
     //Listar las opiniones de un producto
-    public List<Opiniones> listarOpinionesPorProducto (Integer idProducto) {
-        return opinionesRepository.findByProductoIdOrderByIdDesc(idProducto);
+    public List<OpinionesDTO> listarOpinionesPorProducto(Integer idProducto) {
+        return opinionesRepository
+                .findAll()
+                .stream()
+                .filter(opinion -> opinion.getProducto().getId().equals(idProducto))
+                .map(opinion -> {
+                    OpinionesDTO dto = new OpinionesDTO();
+                    dto.setId(opinion.getId());
+                    dto.setComentario(opinion.getComentario());
+                    dto.setOpinion(opinion.getOpinion());
+                    dto.setUsuarioId(opinion.getUsuario().getId());
+                    dto.setProductoId(opinion.getProducto().getId());
+                    return dto;
+                })
+                .toList();
     }
 
 }

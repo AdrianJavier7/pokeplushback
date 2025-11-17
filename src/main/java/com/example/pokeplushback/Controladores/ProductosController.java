@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Controladores;
 
+import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Dto.ProductosDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
@@ -89,7 +90,7 @@ public class ProductosController {
 
     //Listar las opiniones de producto, las más recientes primeros
     @GetMapping("/{id}/opiniones")
-    public List<Opiniones> listarOpinionesProducto(@PathVariable Integer id) {
+    public List<OpinionesDTO> listarOpinionesProducto(@PathVariable Integer id) {
         return opinionesService.listarOpinionesPorProducto(id);
     }
 
