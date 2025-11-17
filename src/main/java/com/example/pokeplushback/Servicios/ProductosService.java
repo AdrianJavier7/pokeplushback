@@ -11,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -92,4 +93,26 @@ public class ProductosService {
     public Productos obtenerProductoPorId(Integer id) {
         return productosRepository.findById(id).orElse(null);
     }
+
+    public List<ProductosDTO> obtenerProductosPorIds(List<Integer> ids) {
+
+        List<Productos> productos = productosRepository.findAllById(ids);
+        List<ProductosDTO> productosDTO = new ArrayList<ProductosDTO>();
+
+        for (Productos producto : productos) {
+            ProductosDTO dto = new ProductosDTO();
+            dto.setId(producto.getId());
+            dto.setNombre(producto.getNombre());
+            dto.setDescripcion(producto.getDescripcion());
+            dto.setPrecio(producto.getPrecio());
+            dto.setTipo(producto.getTipo());
+            dto.setFoto(producto.getFoto());
+            dto.setStock(producto.getStock());
+            dto.setHabilitado(producto.getHabilitado());
+            productosDTO.add(dto);
+        }
+
+        return productosDTO;
+    }
+
 }

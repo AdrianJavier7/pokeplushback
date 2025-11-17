@@ -61,6 +61,7 @@ public class ProductosController {
         return ResponseEntity.ok(productoDTO);
     }
 
+
     //Listar por precios
     @GetMapping("/precio/desc")
     public List<Productos> listarPrecioMayor() {
@@ -92,4 +93,8 @@ public class ProductosController {
         return productosService.deshabilitarProductos(id);
     }
 
+    @PostMapping("/obtenerPorVarios")
+    public List<ProductosDTO> obtenerProductosPorIds(@RequestBody List<Integer> ids) {
+        return productosService.obtenerProductosPorIds(ids);
+    }
 }
