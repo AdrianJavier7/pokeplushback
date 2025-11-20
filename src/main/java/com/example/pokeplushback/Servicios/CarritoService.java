@@ -158,24 +158,27 @@ public class CarritoService {
 
 
     public CarritoDTO QuitarCantidadItemCarrito(ItemDTO itemDTO) {
-
-        // Obtener los items del carrito
         Carrito carrito = carritoRepository.findById(itemDTO.getIdCarrito()).orElse(null);
         if (carrito != null) {
             List<ItemsCarrito> items = carrito.getItems();
             for (ItemsCarrito item : items) {
-                if (item.getId().equals(itemDTO.getIdProducto())) {
-                    item.setCantidad(item.getCantidad() - 1);
-                    // Actualizar el precio unitario
-                    BigDecimal precioProducto = item.getProducto().getPrecio();
-                    BigDecimal precioTotal = precioProducto.multiply(BigDecimal.valueOf(item.getCantidad()));
-                    item.setPrecioUnitario(precioTotal);
-                    itemsCarritoRepository.save(item);
+                if (item.getProducto().getId().equals(itemDTO.getIdProducto())) {
+                    int nuevaCantidad = item.getCantidad() - 1;
+                    if (nuevaCantidad <= 0) {
+                        items.remove(item);
+                        itemsCarritoRepository.delete(item);
+                    } else {
+                        item.setCantidad(nuevaCantidad);
+                        BigDecimal precioProducto = item.getProducto().getPrecio();
+                        BigDecimal precioTotal = precioProducto.multiply(BigDecimal.valueOf(nuevaCantidad));
+                        item.setPrecioUnitario(precioTotal);
+                        itemsCarritoRepository.save(item);
+                    }
                     return mapToDTO(carrito);
                 }
             }
         }
-        return null;
+        throw new RuntimeException("Carrito o ítem no encontrado");
     }
 
     // Eliminarlo completo
