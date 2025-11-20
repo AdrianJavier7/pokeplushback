@@ -33,7 +33,7 @@ public class Productos {
     private Tipos tipo;
 
     @Enumerated(EnumType.STRING)
-    @Column (name = "tipo")
+    @Column (name = "tipo2")
     private Tipos tipo2;
 
     @Column (name= "descripcion")
