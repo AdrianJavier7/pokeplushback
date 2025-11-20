@@ -1,9 +1,6 @@
 package com.example.pokeplushback.Servicios;
 
-import com.example.pokeplushback.Dto.CarritoDTO;
-import com.example.pokeplushback.Dto.ItemCarritoDTO;
-import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Dto.ItemDTO;
+import com.example.pokeplushback.Dto.*;
 import com.example.pokeplushback.Entidades.Carrito;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Productos;
@@ -89,7 +86,7 @@ public class CarritoService {
         } else {
             // No existe carrito → crear uno nuevo
             Carrito nuevoCarrito = new Carrito();
-            nuevoCarrito.setUsuario(new Usuario());
+            nuevoCarrito.setUsuario(usuario);
             nuevoCarrito.getUsuario().setId(usuario.getId());
             nuevoCarrito.setEstado(Estados.ACTIVO);
             nuevoCarrito.setCreadoEn(LocalDate.now());
@@ -133,6 +130,30 @@ public class CarritoService {
         }
         dto.setItems(itemsDTO);
         return dto;
+    }
+
+    public CarritoDTO cambiarEstadoProcesando(Usuario usuario) {
+        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+        if (carrito != null && !carrito.getItems().isEmpty()) {
+            carrito.setEstado(Estados.PROCESANDO);
+            carritoRepository.save(carrito);
+            return mapToDTO(carrito);
+        } else {
+            return null;
+        }
+
+    }
+
+    public List<CarritoDTO> obtenerCarritosPedidos(Usuario usuario) {
+        List<Estados> estadosPedidos = List.of(Estados.ENVIADO, Estados.ENTREGADO, Estados.PROCESANDO);
+        List<Carrito> carritos = carritoRepository.findByUsuarioIdAndEstadoIn(usuario.getId(), estadosPedidos);
+        List<CarritoDTO> carritosDTO = new ArrayList<>();
+
+        for (Carrito carrito : carritos) {
+            carritosDTO.add(mapToDTO(carrito));
+        }
+
+        return carritosDTO;
     }
 
 

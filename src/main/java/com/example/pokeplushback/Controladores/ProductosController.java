@@ -96,7 +96,7 @@ public class ProductosController {
     //Crear producto
     @PostMapping(value ="/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Productos crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
-    ) throws Exception{
+    ) throws Exception {
 
         if(foto != null && !foto.isEmpty()) {
             return productosService.crearProductosConFoto(producto, productosService.guardarFotoComoLargeObject(foto));
