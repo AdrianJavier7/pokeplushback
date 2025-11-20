@@ -32,6 +32,10 @@ public class Productos {
     @Column (name = "tipo")
     private Tipos tipo;
 
+    @Enumerated(EnumType.STRING)
+    @Column (name = "tipo")
+    private Tipos tipo2;
+
     @Column (name= "descripcion")
     private String descripcion;
 
