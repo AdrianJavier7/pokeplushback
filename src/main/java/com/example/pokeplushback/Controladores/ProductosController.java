@@ -44,6 +44,7 @@ public class ProductosController {
                             p.getDescripcion(),
                             p.getPrecio(),
                             p.getTipo(),
+                            p.getTipo2(),
                             base64,
                             p.getStock(),
                             p.getHabilitado()
@@ -69,6 +70,7 @@ public class ProductosController {
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getTipo(),
+                producto.getTipo2(),
                 base64,
                 producto.getStock(),
                 producto.getHabilitado()
