@@ -27,6 +27,7 @@ public class ProductosController {
     @Autowired
     private final OpinionesService opinionesService;
     private ProductosService productosService;
+    private CloudinaryService cloudinaryService;
 
     //Listar productos
     @GetMapping
@@ -39,6 +40,7 @@ public class ProductosController {
                         p.getDescripcion(),
                         p.getPrecio(),
                         p.getTipo(),
+                        p.getTipo2(),
                         p.getFoto(),
                         p.getStock(),
                         p.getHabilitado()
@@ -54,15 +56,13 @@ public class ProductosController {
             return ResponseEntity.notFound().build();
         }
 
-        byte[] fotoBytes = productosService.leerImagenDesdeOid(producto.getFoto());
-        String base64 = Base64.getEncoder().encodeToString(fotoBytes);
-
         ProductosDTO productoDTO = new ProductosDTO(
                 producto.getId(),
                 producto.getNombre(),
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getTipo(),
+                producto.getTipo2(),
                 producto.getFoto(),
                 producto.getStock(),
                 producto.getHabilitado()

@@ -17,11 +17,8 @@ public class ProductosDTO {
     private String nombre;
     private String descripcion;
     private BigDecimal precio;
-    @Enumerated(EnumType.STRING)
     private Tipos tipo;
-    @Enumerated(EnumType.STRING)
-    @Builder.Default
-    private Tipos tipo2 = null;
+    private Tipos tipo2;
     private String foto;
     private int stock;
     private boolean habilitado;
