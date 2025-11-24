@@ -42,9 +42,8 @@ public class Productos {
     @Column (name= "habilitado")
     private Boolean habilitado = true;
 
-    @Lob
     @Column(name = "foto")
-    private Long foto;
+    private String foto;
 
     @Column (name= "stock")
     private Integer stock;
