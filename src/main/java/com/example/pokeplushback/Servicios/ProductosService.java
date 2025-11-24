@@ -56,29 +56,19 @@ public class ProductosService {
     }
 
     //Añadir producto
-    public Productos crearProductos(ProductosDTO producto){
+
+
+    public Productos crearProductosConFoto(ProductosDTO producto, String foto){
 
         Productos productoNuevo =  new Productos();
         productoNuevo.setNombre(producto.getNombre());
         productoNuevo.setDescripcion(producto.getDescripcion());
         productoNuevo.setPrecio(producto.getPrecio());
         productoNuevo.setTipo(producto.getTipo());
-        productoNuevo.setFoto(null);
-        productoNuevo.setStock(producto.getStock());
-        productoNuevo.setHabilitado(true);
-        productoNuevo.setOpiniones(null);
-
-        return productosRepository.save(productoNuevo);
-    }
-
-    public Productos crearProductosConFoto(ProductosDTO producto, Long oid){
-
-        Productos productoNuevo =  new Productos();
-        productoNuevo.setNombre(producto.getNombre());
-        productoNuevo.setDescripcion(producto.getDescripcion());
-        productoNuevo.setPrecio(producto.getPrecio());
-        productoNuevo.setTipo(producto.getTipo());
-        productoNuevo.setFoto(oid);
+        if (foto == null){
+            productoNuevo.setFoto(null);
+        }
+        productoNuevo.setFoto(foto);
         productoNuevo.setStock(producto.getStock());
         productoNuevo.setHabilitado(true);
         productoNuevo.setOpiniones(null);
@@ -130,11 +120,8 @@ public class ProductosService {
             dto.setDescripcion(producto.getDescripcion());
             dto.setPrecio(producto.getPrecio());
             dto.setTipo(producto.getTipo());
-            
 
-            byte[] fotoBytes = leerImagenDesdeOid(producto.getFoto());
-            String base64 = java.util.Base64.getEncoder().encodeToString(fotoBytes);
-            dto.setFoto(base64);
+            dto.setFoto(producto.getFoto());
 
             dto.setStock(producto.getStock());
             dto.setHabilitado(producto.getHabilitado());

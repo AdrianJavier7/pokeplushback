@@ -13,19 +13,16 @@ public class CloudinaryService {
 
     public CloudinaryService() {
         cloudinary = new Cloudinary(ObjectUtils.asMap(
-                "cloud_name", "TU_CLOUD_NAME",
+                "cloud_name", "dlfajcgv2",
                 "api_key", "699489118588246",
                 "api_secret", "UsB-Z3QYq7rMGoewKXujYL0mCY8"
         ));
     }
 
 
-    public Map upload(byte[] fileBytes, String fileName) throws Exception {
-        return cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("public_id", fileName));
+    public String upload(byte[] fileBytes, String fileName) throws Exception {
+        Map uploadResult = cloudinary.uploader().upload(fileBytes, ObjectUtils.asMap("public_id", fileName));
+        return (String) uploadResult.get("secure_url");
     }
 
-
-    public String getUrl(String publicId) {
-        return cloudinary.url().secure(true).generate(publicId);
-    }
 }
