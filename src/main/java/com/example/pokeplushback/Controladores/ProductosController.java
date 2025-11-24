@@ -4,6 +4,7 @@ import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Dto.ProductosDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
+import com.example.pokeplushback.Servicios.CloudinaryService;
 import com.example.pokeplushback.Servicios.OpinionesService;
 import com.example.pokeplushback.Servicios.ProductosService;
 import lombok.AllArgsConstructor;
@@ -32,24 +33,16 @@ public class ProductosController {
     public List<ProductosDTO> getProductos(){
 
         return productosService.listarProductos().stream()
-                .map(p -> {
-                    String base64 = null;
-                    if (p.getFoto() != null) {
-                        byte[] fotoBytes = productosService.leerImagenDesdeOid(p.getFoto());
-                        base64 = Base64.getEncoder().encodeToString(fotoBytes);
-                    }
-                    return new ProductosDTO(
-                            p.getId(),
-                            p.getNombre(),
-                            p.getDescripcion(),
-                            p.getPrecio(),
-                            p.getTipo(),
-                            p.getTipo2(),
-                            base64,
-                            p.getStock(),
-                            p.getHabilitado()
-                    );
-                })
+                .map(p -> new ProductosDTO(
+                        p.getId(),
+                        p.getNombre(),
+                        p.getDescripcion(),
+                        p.getPrecio(),
+                        p.getTipo(),
+                        p.getFoto(),
+                        p.getStock(),
+                        p.getHabilitado()
+                ))
                 .collect(Collectors.toList());
     }
 
@@ -70,8 +63,7 @@ public class ProductosController {
                 producto.getDescripcion(),
                 producto.getPrecio(),
                 producto.getTipo(),
-                producto.getTipo2(),
-                base64,
+                producto.getFoto(),
                 producto.getStock(),
                 producto.getHabilitado()
         );
@@ -101,11 +93,11 @@ public class ProductosController {
     public Productos crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
     ) throws Exception {
 
-        if(foto != null && !foto.isEmpty()) {
-            return productosService.crearProductosConFoto(producto, productosService.guardarFotoComoLargeObject(foto));
-        } else {
-            return productosService.crearProductos(producto);
-        }
+        String fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
+
+        return productosService.crearProductosConFoto(producto, fotoUrl);
+
+
 
     }
 

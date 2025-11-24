@@ -158,6 +158,7 @@ public class CarritoService {
 
 
     public CarritoDTO QuitarCantidadItemCarrito(ItemDTO itemDTO) {
+        // Obtener los items del carrito
         Carrito carrito = carritoRepository.findById(itemDTO.getIdCarrito()).orElse(null);
         if (carrito != null) {
             List<ItemsCarrito> items = carrito.getItems();
