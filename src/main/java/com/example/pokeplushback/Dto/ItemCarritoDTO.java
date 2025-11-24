@@ -10,4 +10,5 @@ public class ItemCarritoDTO {
     private BigDecimal precioUnitario;
     private Integer cantidad;
     private Integer idCarrito;
+    private Integer idProducto;
 }

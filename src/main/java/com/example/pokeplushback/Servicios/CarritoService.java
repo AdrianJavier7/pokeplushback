@@ -1,9 +1,6 @@
 package com.example.pokeplushback.Servicios;
 
-import com.example.pokeplushback.Dto.CarritoDTO;
-import com.example.pokeplushback.Dto.ItemCarritoDTO;
-import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Dto.ItemDTO;
+import com.example.pokeplushback.Dto.*;
 import com.example.pokeplushback.Entidades.Carrito;
 import com.example.pokeplushback.Entidades.ItemsCarrito;
 import com.example.pokeplushback.Entidades.Productos;
@@ -41,23 +38,26 @@ public class CarritoService {
         return mapToDTO(carrito);
     }
 
-    public CarritoDTO anyadirAlCarrito(ProductosDTO producto) {
+    public CarritoDTO anyadirAlCarrito(Integer idProducto, Usuario usuario) {
 
         // Buscar carrito activo del usuario
-        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(producto.getIdUsuario(), Estados.ACTIVO);
+        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+        Productos producto = productosRepository.findById(idProducto)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
         if (carrito != null && carrito.getId() != null) {
 
             List<ItemsCarrito> items = carrito.getItems();
             List<Productos> productosEnCarrito = itemsCarritoRepository.findProductosByCarritoId(carrito.getId());
 
+
             boolean productoExiste = productosEnCarrito.stream()
-                    .anyMatch(p -> p.getId().equals(producto.getId()));
+                    .anyMatch(p -> p.getId().equals(idProducto));
 
             if (productoExiste) {
                 // Producto ya existe → actualizar cantidad y precio
                 for (ItemsCarrito item : items) {
-                    if (item.getProducto().getId().equals(producto.getId())) {
+                    if (item.getProducto().getId().equals(idProducto)) {
                         item.setCantidad(item.getCantidad() + 1);
                         BigDecimal precioTotal = producto.getPrecio().multiply(BigDecimal.valueOf(item.getCantidad()));
                         item.setPrecioUnitario(precioTotal);
@@ -66,11 +66,12 @@ public class CarritoService {
                     }
                 }
             } else {
-                // Producto no está en el carrito - agregarlo
+                // Producto no está en el carrito → agregarlo
                 ItemsCarrito nuevoItem = new ItemsCarrito();
                 nuevoItem.setCantidad(1);
                 nuevoItem.setCarrito(carrito);
 
+                //  Obtener producto persistido desde la base de datos
                 Productos productoExistente = productosRepository.findById(producto.getId())
                         .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
@@ -85,8 +86,8 @@ public class CarritoService {
         } else {
             // No existe carrito → crear uno nuevo
             Carrito nuevoCarrito = new Carrito();
-            nuevoCarrito.setUsuario(new Usuario());
-            nuevoCarrito.getUsuario().setId(producto.getIdUsuario());
+            nuevoCarrito.setUsuario(usuario);
+            nuevoCarrito.getUsuario().setId(usuario.getId());
             nuevoCarrito.setEstado(Estados.ACTIVO);
             nuevoCarrito.setCreadoEn(LocalDate.now());
             carritoRepository.save(nuevoCarrito);
@@ -124,10 +125,35 @@ public class CarritoService {
             itemDTO.setCantidad(item.getCantidad());
             itemDTO.setPrecioUnitario(item.getPrecioUnitario());
             itemDTO.setIdCarrito(carrito.getId());
+            itemDTO.setIdProducto(item.getProducto().getId());
             itemsDTO.add(itemDTO);
         }
         dto.setItems(itemsDTO);
         return dto;
+    }
+
+    public CarritoDTO cambiarEstadoProcesando(Usuario usuario) {
+        Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+        if (carrito != null && !carrito.getItems().isEmpty()) {
+            carrito.setEstado(Estados.PROCESANDO);
+            carritoRepository.save(carrito);
+            return mapToDTO(carrito);
+        } else {
+            return null;
+        }
+
+    }
+
+    public List<CarritoDTO> obtenerCarritosPedidos(Usuario usuario) {
+        List<Estados> estadosPedidos = List.of(Estados.ENVIADO, Estados.ENTREGADO, Estados.PROCESANDO);
+        List<Carrito> carritos = carritoRepository.findByUsuarioIdAndEstadoIn(usuario.getId(), estadosPedidos);
+        List<CarritoDTO> carritosDTO = new ArrayList<>();
+
+        for (Carrito carrito : carritos) {
+            carritosDTO.add(mapToDTO(carrito));
+        }
+
+        return carritosDTO;
     }
 
 
@@ -137,21 +163,26 @@ public class CarritoService {
         if (carrito != null) {
             List<ItemsCarrito> items = carrito.getItems();
             for (ItemsCarrito item : items) {
-                if (item.getId().equals(itemDTO.getIdProducto())) {
-                    item.setCantidad(item.getCantidad() - 1);
-                    // Actualizar el precio unitario
-                    BigDecimal precioProducto = item.getProducto().getPrecio();
-                    BigDecimal precioTotal = precioProducto.multiply(BigDecimal.valueOf(item.getCantidad()));
-                    item.setPrecioUnitario(precioTotal);
-                    itemsCarritoRepository.save(item);
+                if (item.getProducto().getId().equals(itemDTO.getIdProducto())) {
+                    int nuevaCantidad = item.getCantidad() - 1;
+                    if (nuevaCantidad <= 0) {
+                        items.remove(item);
+                        itemsCarritoRepository.delete(item);
+                    } else {
+                        item.setCantidad(nuevaCantidad);
+                        BigDecimal precioProducto = item.getProducto().getPrecio();
+                        BigDecimal precioTotal = precioProducto.multiply(BigDecimal.valueOf(nuevaCantidad));
+                        item.setPrecioUnitario(precioTotal);
+                        itemsCarritoRepository.save(item);
+                    }
                     return mapToDTO(carrito);
                 }
             }
         }
-        return null;
+        throw new RuntimeException("Carrito o ítem no encontrado");
     }
 
-
+    // Eliminarlo completo
     public CarritoDTO borrarItemCarrito(Integer idItem){
         Optional<ItemsCarrito> itemOpt = itemsCarritoRepository.findById(idItem);
         if (itemOpt.isPresent()) {

@@ -1,11 +1,10 @@
 package com.example.pokeplushback.Dto;
 
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 import lombok.Data;
-import org.antlr.v4.runtime.misc.NotNull;
 import org.hibernate.annotations.BatchSize;
+
+import java.math.BigDecimal;
 
 
 @Data
@@ -19,9 +18,9 @@ public class OpinionesDTO {
     @NotNull
     private Integer productoId;
 
-    @Min(0)
-    @Max(5)
-    private Float opinion;
+    @DecimalMin("0")
+    @DecimalMax("5")
+    private BigDecimal opinion;
 
     @Size(min=5, max=500)
     private String comentario;

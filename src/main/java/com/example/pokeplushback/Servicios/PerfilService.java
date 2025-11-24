@@ -48,7 +48,7 @@ public class PerfilService {
         perfilLogueado.setDescripcion(perfilDTO.getDescripcion());
         perfilLogueado.setFecha_nacimiento(perfilDTO.getFechaNacimiento());
         perfilLogueado.setTelefono(perfilDTO.getTelefono());
-        perfilLogueado.setFoto(perfilDTO.getFoto());
+        perfilLogueado.setFoto((perfilDTO.getFoto()));
         perfilLogueado.setEmail(perfilDTO.getEmail());
 
         if (perfilDTO.getDireccion() != null) {

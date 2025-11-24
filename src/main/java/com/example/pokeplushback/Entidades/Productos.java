@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Entidades;
 
+import com.example.pokeplushback.Enums.Tipos;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,17 +28,22 @@ public class Productos {
     @Column (name="precio", scale=2)
     private BigDecimal precio ;
 
+    @Enumerated(EnumType.STRING)
     @Column (name = "tipo")
-    private String tipo;
+    private Tipos tipo;
+
+    @Enumerated(EnumType.STRING)
+    @Column (name = "tipo2")
+    private Tipos tipo2;
 
     @Column (name= "descripcion")
     private String descripcion;
 
     @Column (name= "habilitado")
-    private boolean habilitado;
+    private Boolean habilitado = true;
 
     @Lob
-    @Column(name = "foto", columnDefinition = "bytea")
+    @Column(name = "foto")
     private Long foto;
 
     @Column (name= "stock")
@@ -45,9 +51,4 @@ public class Productos {
 
     @OneToMany(mappedBy = "producto", cascade = CascadeType.ALL)
     private List<Opiniones> opiniones;
-
-
-
-
-
 }

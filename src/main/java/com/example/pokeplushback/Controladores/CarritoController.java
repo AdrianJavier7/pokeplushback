@@ -8,7 +8,10 @@ import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Security.JWTService;
 import com.example.pokeplushback.Servicios.CarritoService;
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/carrito")
@@ -19,15 +22,28 @@ public class CarritoController {
     private JWTService jwtService;
 
     @GetMapping("/obtener")
-    public CarritoDTO obtenerCarrito(@RequestHeader ("Authorization") String token) {
+        public CarritoDTO obtenerCarrito(@RequestHeader ("Authorization") String token) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
 
         return carritoService.getCarritoUsuario(perfilUsuario);
     }
 
-    @PostMapping("/anyadir")
-    public CarritoDTO anyadirAlCarrito(@RequestBody ProductosDTO producto) {
-        return carritoService.anyadirAlCarrito(producto);
+    @PostMapping("/anyadir/{idProducto}")
+    public CarritoDTO anyadirAlCarrito(@PathVariable Integer idProducto, @RequestHeader ("Authorization") String token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.anyadirAlCarrito(idProducto, perfilUsuario);
+    }
+
+    @PostMapping("/procesando")
+    public CarritoDTO procesarCarrito(@RequestHeader ("Authorization") String token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.cambiarEstadoProcesando(perfilUsuario);
+    }
+
+    @GetMapping("/pedidos")
+    public List<CarritoDTO> obtenerPedidosUsuario(@RequestHeader("Authorization") String token) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.obtenerCarritosPedidos(perfilUsuario);
     }
 
     @PostMapping("/quitar")
