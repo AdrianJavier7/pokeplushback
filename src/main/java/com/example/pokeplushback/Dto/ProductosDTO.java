@@ -24,6 +24,6 @@ public class ProductosDTO {
     private String foto;
     private int stock;
     private boolean habilitado;
-    private List<OpinionesDTO> opiniones;
+    //private List<OpinionesDTO> opiniones;
 
 }
