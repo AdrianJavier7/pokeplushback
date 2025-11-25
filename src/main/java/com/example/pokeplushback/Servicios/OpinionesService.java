@@ -2,6 +2,7 @@ package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Entidades.Opiniones;
+import com.example.pokeplushback.Entidades.Usuario;
 import com.example.pokeplushback.Repositorios.OpinionesRepository;
 import com.example.pokeplushback.Repositorios.UsuarioRepository;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
@@ -46,7 +47,6 @@ public class OpinionesService {
             dto.setId(opinion.getId());
             dto.setComentario(opinion.getComentario());
             dto.setOpinion(opinion.getOpinion());
-            dto.setUsuarioId(opinion.getUsuario().getId());
             dto.setProductoId(opinion.getProducto().getId());
             return dto;
         }).toList();
@@ -60,7 +60,6 @@ public class OpinionesService {
             dto.setId(opinion.getId());
             dto.setComentario(opinion.getComentario());
             dto.setOpinion(opinion.getOpinion());
-            dto.setUsuarioId(opinion.getUsuario().getId());
             dto.setProductoId(opinion.getProducto().getId());
             return dto;
         }
@@ -68,11 +67,11 @@ public class OpinionesService {
     }
 
     //Este lo que hace es crear una nueva opinion y guardarla en la base de datos
-    public OpinionesDTO crearOpinion(OpinionesDTO opinion) {
+    public OpinionesDTO crearOpinion(OpinionesDTO opinion, Usuario usuario) {
         Opiniones nuevaOpinion = new Opiniones();
         nuevaOpinion.setComentario(opinion.getComentario());
         nuevaOpinion.setOpinion(opinion.getOpinion());
-        nuevaOpinion.setUsuario(usuarioRepository.getById(opinion.getUsuarioId()));
+        nuevaOpinion.setUsuario(usuario);
         nuevaOpinion.setProducto(productosRepository.getById(opinion.getProductoId()));
 
         Opiniones opinionGuardada = opinionesRepository.save(nuevaOpinion);
@@ -81,19 +80,18 @@ public class OpinionesService {
         opinionDTO.setId(opinionGuardada.getId());
         opinionDTO.setComentario(opinionGuardada.getComentario());
         opinionDTO.setOpinion(opinionGuardada.getOpinion());
-        opinionDTO.setUsuarioId(opinionGuardada.getUsuario().getId());
         opinionDTO.setProductoId(opinionGuardada.getProducto().getId());
         return opinionDTO;
 
     }
 
     //Este lo que hace es actualizar una opinion existente en la base de datos
-    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO opinionActualizada) {
+    public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO opinionActualizada, Usuario usuario) {
         Opiniones opinionExistente = opinionesRepository.findById(id).orElse(null);
         if (opinionExistente != null) {
             opinionExistente.setComentario(opinionActualizada.getComentario());
             opinionExistente.setOpinion(opinionActualizada.getOpinion());
-            opinionExistente.setUsuario(usuarioRepository.getById(opinionActualizada.getUsuarioId()));
+            opinionExistente.setUsuario(usuario);
             opinionExistente.setProducto(productosRepository.getById(opinionActualizada.getProductoId()));
 
             Opiniones opinionGuardada = opinionesRepository.save(opinionExistente);
@@ -102,7 +100,6 @@ public class OpinionesService {
             dto.setId(opinionGuardada.getId());
             dto.setComentario(opinionGuardada.getComentario());
             dto.setOpinion(opinionGuardada.getOpinion());
-            dto.setUsuarioId(opinionGuardada.getUsuario().getId());
             dto.setProductoId(opinionGuardada.getProducto().getId());
             return dto;
         }
@@ -132,7 +129,6 @@ public class OpinionesService {
                     dto.setId(opinion.getId());
                     dto.setComentario(opinion.getComentario());
                     dto.setOpinion(opinion.getOpinion());
-                    dto.setUsuarioId(opinion.getUsuario().getId());
                     dto.setProductoId(opinion.getProducto().getId());
                     return dto;
                 })
@@ -150,11 +146,9 @@ public class OpinionesService {
                     dto.setId(opinion.getId());
                     dto.setComentario(opinion.getComentario());
                     dto.setOpinion(opinion.getOpinion());
-                    dto.setUsuarioId(opinion.getUsuario().getId());
                     dto.setProductoId(opinion.getProducto().getId());
                     return dto;
                 })
                 .toList();
     }
-
 }

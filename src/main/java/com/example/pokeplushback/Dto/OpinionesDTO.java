@@ -13,9 +13,6 @@ public class OpinionesDTO {
     private Integer id;
 
     @NotNull
-    private Integer usuarioId;
-
-    @NotNull
     private Integer productoId;
 
     @DecimalMin("0")
