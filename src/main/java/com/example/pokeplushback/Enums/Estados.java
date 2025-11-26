@@ -5,5 +5,6 @@ public enum Estados {
     ACTIVO,
     ENVIADO,
     ENTREGADO,
-    PROCESANDO
+    PROCESANDO,
+    CANCELADO
 }

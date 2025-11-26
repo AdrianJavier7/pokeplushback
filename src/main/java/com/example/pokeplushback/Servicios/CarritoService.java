@@ -144,6 +144,26 @@ public class CarritoService {
 
     }
 
+    public CarritoDTO cancelarPedido(Usuario usuario, Integer idPedido) {
+        Carrito carrito = carritoRepository.findById(idPedido).orElse(null);
+        if (carrito != null) {
+            carrito.setEstado(Estados.CANCELADO);
+            carritoRepository.save(carrito);
+            return mapToDTO(carrito);
+        } else {
+            return null;
+        }
+    }
+
+    public CarritoDTO obtenerPedidoActual(Usuario usuario, Integer idPedido) {
+        Carrito carrito = carritoRepository.findById(idPedido).orElse(null);
+        if (carrito != null) {
+            return mapToDTO(carrito);
+        } else {
+            return null;
+        }
+    }
+
     public List<CarritoDTO> obtenerCarritosPedidos(Usuario usuario) {
         List<Estados> estadosPedidos = List.of(Estados.ENVIADO, Estados.ENTREGADO, Estados.PROCESANDO);
         List<Carrito> carritos = carritoRepository.findByUsuarioIdAndEstadoIn(usuario.getId(), estadosPedidos);
