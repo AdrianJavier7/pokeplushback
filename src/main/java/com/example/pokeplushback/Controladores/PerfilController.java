@@ -24,6 +24,8 @@ public class PerfilController {
 
     @Autowired
     private JWTService jwtService;
+
+    @Autowired
     private CloudinaryService cloudinary;
 
     @GetMapping("/miPerfil")
@@ -37,8 +39,10 @@ public class PerfilController {
     ) throws Exception {
         Usuario perfilLogueado = jwtService.extraerPerfilToken(token);
 
-        String fotoUrl = cloudinary.upload(foto.getBytes(), foto.getOriginalFilename());
-        perfilDTO.setFoto(fotoUrl);
+        if (foto != null && !foto.isEmpty()) {
+            String fotoUrl = cloudinary.upload(foto.getBytes(), foto.getOriginalFilename());
+            perfilDTO.setFoto(fotoUrl);
+        }
         return perfilService.updatePerfil(perfilLogueado, perfilDTO);
 
     }
