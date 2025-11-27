@@ -24,6 +24,8 @@
 
         @Autowired
         private JWTService jwtService;
+
+        @Autowired
         private CloudinaryService cloudinary;
 
         @GetMapping("/miPerfil")
