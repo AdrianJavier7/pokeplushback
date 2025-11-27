@@ -131,5 +131,15 @@ public class ProductosService {
         return productosDTO;
     }
 
+    //Listar las opiniones de un producto, las más recientes primero
+    public List<Opiniones> listarOpinionesPorProducto(Integer idProducto) {
+        Productos producto = productosRepository.findById(idProducto).orElse(null);
+
+        if (producto == null) {
+            return new ArrayList<>();
+        }
+
+        return producto.getOpiniones();
+    }
 
 }

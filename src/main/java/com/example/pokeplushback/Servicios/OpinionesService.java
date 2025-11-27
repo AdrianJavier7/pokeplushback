@@ -21,6 +21,7 @@ public class OpinionesService {
 
     @Autowired
     private UsuarioRepository usuarioRepository;
+
     @Autowired
     private ProductosRepository productosRepository;
 
@@ -85,7 +86,7 @@ public class OpinionesService {
 
     }
 
-    //Este lo que hace es actualizar una opinion existente en la base de datos
+    //Este lo que hace es actualizar una opinion existente
     public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO opinionActualizada, Usuario usuario) {
         Opiniones opinionExistente = opinionesRepository.findById(id).orElse(null);
         if (opinionExistente != null) {
@@ -106,7 +107,7 @@ public class OpinionesService {
         return null;
     }
 
-    //Este lo que hace es eliminar una opinion de la base de datos buscandola por su id
+    //Este lo que hace es eliminar una opinion buscandola por su id
     public boolean eliminarOpinion(Integer id) {
         if (opinionesRepository.existsById(id)) {
             opinionesRepository.deleteById(id);
@@ -135,20 +136,32 @@ public class OpinionesService {
                 .toList();
     }
 
-    //Listar las opiniones de un producto
-    public List<OpinionesDTO> listarOpinionesPorProducto(Integer idProducto) {
-        return opinionesRepository
-                .findAll()
+    //--------------PRODUCTOS--------------------
+
+    public List<OpinionesDTO> listarOpinionesPorProducto(Integer productoId) {
+        return opinionesRepository.findByProductoId(productoId)
                 .stream()
-                .filter(opinion -> opinion.getProducto().getId().equals(idProducto))
                 .map(opinion -> {
                     OpinionesDTO dto = new OpinionesDTO();
                     dto.setId(opinion.getId());
                     dto.setComentario(opinion.getComentario());
                     dto.setOpinion(opinion.getOpinion());
                     dto.setProductoId(opinion.getProducto().getId());
+
+                    // Evitar NPE: si no hay usuario, devolvemos un valor por defecto
+                    if (opinion.getUsuario() != null) {
+                        dto.setNombreUsuario(opinion.getUsuario().getNombre());
+                        dto.setIdUsuario(opinion.getUsuario().getId());
+                    } else {
+                        dto.setIdUsuario(null);
+                        dto.setNombreUsuario("Usuario desconocido");
+                    }
+
                     return dto;
                 })
                 .toList();
     }
+
+
+
 }

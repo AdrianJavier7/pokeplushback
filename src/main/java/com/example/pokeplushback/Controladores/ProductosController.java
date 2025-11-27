@@ -82,11 +82,13 @@ public class ProductosController {
         return productosService.listarPrecioMenor();
     }
 
-    //Listar las opiniones de producto, las más recientes primeros
+    // Listar opiniones de un producto ACA ES DONDE ESTOY TRABAJANDO
     @GetMapping("/{id}/opiniones")
-    public List<OpinionesDTO> listarOpinionesProducto(@PathVariable Integer id) {
-        return opinionesService.listarOpinionesPorProducto(id);
+    public ResponseEntity<List<OpinionesDTO>> listarOpinionesProducto(@PathVariable Integer id) {
+        List<OpinionesDTO> opiniones = opinionesService.listarOpinionesPorProducto(id);
+        return ResponseEntity.ok(opiniones);
     }
+
 
     //Crear producto
     @PostMapping(value ="/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -96,9 +98,6 @@ public class ProductosController {
         String fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
 
         return productosService.crearProductosConFoto(producto, fotoUrl);
-
-
-
     }
 
     //Deshabilitar producto
@@ -111,4 +110,8 @@ public class ProductosController {
     public List<ProductosDTO> obtenerProductosPorIds(@RequestBody List<Integer> ids) {
         return productosService.obtenerProductosPorIds(ids);
     }
+
+
+
+
 }

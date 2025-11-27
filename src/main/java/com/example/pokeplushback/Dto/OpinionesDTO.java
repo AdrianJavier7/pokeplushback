@@ -1,5 +1,6 @@
 package com.example.pokeplushback.Dto;
 
+import com.example.pokeplushback.Entidades.Usuario;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 import org.hibernate.annotations.BatchSize;
@@ -22,4 +23,6 @@ public class OpinionesDTO {
     @Size(min=5, max=500)
     private String comentario;
 
+    private Integer idUsuario;
+    private Usuario nombreUsuario;
 }
