@@ -56,4 +56,17 @@ public class CarritoController {
         return carritoService.borrarItemCarrito(id);
     }
 
+    @PostMapping("/cancelar/{id}")
+    public CarritoDTO cancelarPedido(@RequestHeader ("Authorization") String token, @PathVariable Integer id) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.cancelarPedido(perfilUsuario, id);
+    }
+
+    @GetMapping("/obtener/{id}")
+    public CarritoDTO obtenerCarritoPorId(@RequestHeader("Authorization") String token, @PathVariable Integer id) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+
+        return carritoService.obtenerPedidoActual(perfilUsuario, id);
+    }
+
 }

@@ -55,7 +55,7 @@ public class ProductosService {
         return productosRepository.save(producto);
     }
 
-    //Añadir producto
+   //Añadir producto
 
 
     public Productos crearProductosConFoto(ProductosDTO producto, String foto){
@@ -65,6 +65,8 @@ public class ProductosService {
         productoNuevo.setDescripcion(producto.getDescripcion());
         productoNuevo.setPrecio(producto.getPrecio());
         productoNuevo.setTipo(producto.getTipo());
+        productoNuevo.setTipo2(producto.getTipo2());
+
         if (foto == null){
             productoNuevo.setFoto(null);
         }
@@ -120,6 +122,8 @@ public class ProductosService {
             dto.setDescripcion(producto.getDescripcion());
             dto.setPrecio(producto.getPrecio());
             dto.setTipo(producto.getTipo());
+            dto.setTipo2(producto.getTipo2());
+
 
             dto.setFoto(producto.getFoto());
 
@@ -131,5 +135,40 @@ public class ProductosService {
         return productosDTO;
     }
 
+    // Guardar una foto como Large Object en PostgreSQL y devolver su OID
+    public Long guardarFotoComoLargeObject(MultipartFile file) throws Exception {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            LargeObjectManager lobj = conn.unwrap(PGConnection.class).getLargeObjectAPI();
+
+            long oid = lobj.createLO(LargeObjectManager.WRITE);
+            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            obj.write(file.getBytes());
+            obj.close();
+
+            conn.commit();
+            return oid;
+        }
+    }
+
+    // Leer una imagen desde un OID de Large Object en PostgreSQL
+    public byte[] leerImagenDesdeOid(Long oid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            // Usamos PGConnection para acceder a LargeObjectManager, que no viene por defecto en JDBC
+            org.postgresql.PGConnection pgConn = connection.unwrap(org.postgresql.PGConnection.class);
+            LargeObjectManager lobj = pgConn.getLargeObjectAPI();
+
+            LargeObject obj = lobj.open(oid, LargeObjectManager.READ);
+            byte[] data = new byte[obj.size()];
+            obj.read(data, 0, obj.size());
+            obj.close();
+
+            connection.commit();
+            return data;
+        } catch (Exception e) {
+            throw new RuntimeException("Error leyendo imagen por OID", e);
+        }
+    }
 
 }
