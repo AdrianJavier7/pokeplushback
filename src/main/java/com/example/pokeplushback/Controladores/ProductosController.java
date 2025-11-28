@@ -7,6 +7,7 @@ import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Servicios.CloudinaryService;
 import com.example.pokeplushback.Servicios.OpinionesService;
 import com.example.pokeplushback.Servicios.ProductosService;
+import com.example.pokeplushback.conversores.ProductosMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
@@ -28,58 +29,39 @@ public class ProductosController {
     private final OpinionesService opinionesService;
     private ProductosService productosService;
     private CloudinaryService cloudinaryService;
+    @Autowired
+    private ProductosMapper productosMapper;
 
     //Listar productos
     @GetMapping
     public List<ProductosDTO> getProductos(){
-
-        return productosService.listarProductos().stream()
-                .map(p -> new ProductosDTO(
-                        p.getId(),
-                        p.getNombre(),
-                        p.getDescripcion(),
-                        p.getPrecio(),
-                        p.getTipo(),
-                        p.getTipo2(),
-                        p.getFoto(),
-                        p.getStock(),
-                        p.getHabilitado()
-                ))
-                .collect(Collectors.toList());
+        return productosService.listarProductos();
     }
 
-    //Obtener producto
+    //Obtener producto por id
     @GetMapping("/{id}")
     public ResponseEntity<ProductosDTO> obtenerProducto (@PathVariable Integer id){
-        Productos producto = productosService.obtenerProductoPorId(id);
-        if(producto == null){
+        ProductosDTO productoDTO = productosService.obtenerProductoPorId(id);
+        if(productoDTO == null){
             return ResponseEntity.notFound().build();
         }
-
-        ProductosDTO productoDTO = new ProductosDTO(
-                producto.getId(),
-                producto.getNombre(),
-                producto.getDescripcion(),
-                producto.getPrecio(),
-                producto.getTipo(),
-                producto.getTipo2(),
-                producto.getFoto(),
-                producto.getStock(),
-                producto.getHabilitado()
-        );
         return ResponseEntity.ok(productoDTO);
     }
 
-
     //Listar por precios
-    @GetMapping("/precio/desc")
-    public List<Productos> listarPrecioMayor() {
+    @GetMapping("/orden/precio/desc")
+    public List<ProductosDTO> listarPrecioMayor() {
         return productosService.listarPrecioMayor();
     }
 
-    @GetMapping("/precio/asc")
-    public List<Productos> listarPrecioMenor() {
+    @GetMapping("/orden/precio/asc")
+    public List<ProductosDTO> listarPrecioMenor() {
         return productosService.listarPrecioMenor();
+    }
+
+    @GetMapping("/orden/alfabetico")
+    public List<ProductosDTO> listarAlfabetico() {
+        return productosService.listarAlfabetico();
     }
 
     //Listar las opiniones de producto, las más recientes primeros
@@ -90,25 +72,40 @@ public class ProductosController {
 
     //Crear producto
     @PostMapping(value ="/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Productos crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
+    public ProductosDTO crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
     ) throws Exception {
-
         String fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
 
-        return productosService.crearProductosConFoto(producto, fotoUrl);
-
-
-
+        Productos entidad = productosService.crearProductosConFoto(producto, fotoUrl);
+        return productosMapper.convertirADTO(entidad);
     }
 
     //Deshabilitar producto
     @PostMapping("/deshabilitar_producto/{id}")
-    public Productos deshabilitarProducto(@PathVariable Integer id){
-        return productosService.deshabilitarProductos(id);
+    public ResponseEntity<ProductosDTO> deshabilitarProducto(@PathVariable Integer id){
+        ProductosDTO productosDTO = productosService.deshabilitarProductos(id);
+        if (productosDTO == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(productosDTO);
+    }
+
+    @PostMapping("/habilitar_producto/{id}")
+    public ResponseEntity<ProductosDTO> habilitarProducto(@PathVariable Integer id) {
+        ProductosDTO productosDTO = productosService.habilitarProductos(id);
+        if (productosDTO == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(productosDTO);
     }
 
     @PostMapping("/obtenerPorVarios")
     public List<ProductosDTO> obtenerProductosPorIds(@RequestBody List<Integer> ids) {
         return productosService.obtenerProductosPorIds(ids);
+    }
+
+    @GetMapping ("/buscar")
+    public List<ProductosDTO> buscarProductosPorNombre(@RequestParam String nombre){
+        return productosService.buscarPorNombre(nombre);
     }
 }
