@@ -82,9 +82,12 @@ public class OpinionesService {
         opinionDTO.setComentario(opinionGuardada.getComentario());
         opinionDTO.setOpinion(opinionGuardada.getOpinion());
         opinionDTO.setProductoId(opinionGuardada.getProducto().getId());
+        // campos de usuario:
+        opinionDTO.setIdUsuario(opinionGuardada.getUsuario().getId());
+        opinionDTO.setNombreUsuario(opinionGuardada.getUsuario().getNombre());
         return opinionDTO;
-
     }
+
 
     //Este lo que hace es actualizar una opinion existente
     public OpinionesDTO actualizarOpinion(Integer id, OpinionesDTO opinionActualizada, Usuario usuario) {

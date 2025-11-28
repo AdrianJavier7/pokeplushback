@@ -3,12 +3,14 @@ package com.example.pokeplushback.Dto;
 import com.example.pokeplushback.Entidades.Usuario;
 import jakarta.validation.constraints.*;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.BatchSize;
 
 import java.math.BigDecimal;
 
 
 @Data
+@NoArgsConstructor
 public class OpinionesDTO {
 
     private Integer id;
@@ -24,5 +26,5 @@ public class OpinionesDTO {
     private String comentario;
 
     private Integer idUsuario;
-    private Usuario nombreUsuario;
+    private String nombreUsuario;
 }
