@@ -1,11 +1,9 @@
 package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Entidades.ItemsCarrito;
-import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
-import com.example.pokeplushback.Enums.Tipos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
+import com.example.pokeplushback.conversores.ProductosMapper;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
@@ -15,9 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -27,112 +23,79 @@ public class ProductosService {
     private ProductosRepository productosRepository;
 
     @Autowired
+    private ProductosMapper productosMapper;
+
+    @Autowired
     private DataSource dataSource;
 
     //Listar todos los productos
-    public List<Productos> listarProductos(){
-        return productosRepository.findAll();
+    public List<ProductosDTO> listarProductos(){
+
+        return productosMapper.convertirADTO(productosRepository.findAll());
     }
 
     //Listar productos por precio menor a mayor
-    public List<Productos> listarPrecioMenor() {
-        return productosRepository.findAll(Sort.by("precio").ascending());
+    public List<ProductosDTO> listarPrecioMenor() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by("precio").ascending()));
     }
 
     //Listar productos por precio mayor a menor
-    public List<Productos> listarPrecioMayor() {
-        return productosRepository.findAll(Sort.by("precio").descending());
+    public List<ProductosDTO> listarPrecioMayor() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by("precio").descending()));
     }
 
-    //Relación con opiniones y carrito
-    public Productos guardarProductos(Productos producto){
-        if (producto.getOpiniones() != null){
-            for(Opiniones opiniones : producto.getOpiniones()){
-                opiniones.setProducto(producto);
-            }
-        }
+    //Listar por orden alfabético
+    public List<ProductosDTO> listarAlfabetico() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre")));
+    }
+
+    //Crear producto con foto
+    public Productos crearProductosConFoto(ProductosDTO dto, String foto){
+
+        Productos producto = productosMapper.convertirAEntity(dto);
+        producto.setFoto(foto);
+        producto.setHabilitado(true);
+        producto.setOpiniones(null);
 
         return productosRepository.save(producto);
-    }
-
-   //Añadir producto
-
-
-    public Productos crearProductosConFoto(ProductosDTO producto, String foto){
-
-        Productos productoNuevo =  new Productos();
-        productoNuevo.setNombre(producto.getNombre());
-        productoNuevo.setDescripcion(producto.getDescripcion());
-        productoNuevo.setPrecio(producto.getPrecio());
-        productoNuevo.setTipo(producto.getTipo());
-        productoNuevo.setTipo2(producto.getTipo2());
-
-        if (foto == null){
-            productoNuevo.setFoto(null);
-        }
-        productoNuevo.setFoto(foto);
-        productoNuevo.setStock(producto.getStock());
-        productoNuevo.setHabilitado(true);
-        productoNuevo.setOpiniones(null);
-
-        return productosRepository.save(productoNuevo);
     }
 
     //Deshabilitar producto
-    public Productos deshabilitarProductos(Integer idProducto){
+    public ProductosDTO deshabilitarProductos(Integer idProducto){
         Productos producto = productosRepository.findById(idProducto).orElse(null);
-
         if (producto == null){
             return null;
         }
-
         producto.setHabilitado(false);
-
-        return productosRepository.save(producto);
+        Productos productos = productosRepository.save(producto);
+        return productosMapper.convertirADTO(productos);
 
     }
 
     //Habilitar producto
-    public Productos habilitarProductos(Integer idProducto){
+    public ProductosDTO habilitarProductos(Integer idProducto){
         Productos producto = productosRepository.findById(idProducto).orElse(null);
-
         if (producto == null){
             return null;
         }
-
         producto.setHabilitado(true);
-
-        return productosRepository.save(producto);
-
+        Productos productos = productosRepository.save(producto);
+        return productosMapper.convertirADTO(productos);
     }
 
-    public Productos obtenerProductoPorId(Integer id) {
-        return productosRepository.findById(id).orElse(null);
+    //Obtener producto por ID
+    public ProductosDTO obtenerProductoPorId(Integer id) {
+        return productosRepository.findById(id).map(productosMapper::convertirADTO).orElse(null);
     }
 
+    public List<ProductosDTO> buscarPorNombre(String nombre){
+        List<Productos> productos = productosRepository.findByNombreContainingIgnoreCase(nombre);
+        return productosMapper.convertirADTO(productos);
+    }
+
+    //Obtener un producto por su id
     public List<ProductosDTO> obtenerProductosPorIds(List<Integer> ids) {
-
-        List<Productos> productos = productosRepository.findAllById(ids);
-        List<ProductosDTO> productosDTO = new ArrayList<ProductosDTO>();
-
-        for (Productos producto : productos) {
-            ProductosDTO dto = new ProductosDTO();
-            dto.setId(producto.getId());
-            dto.setNombre(producto.getNombre());
-            dto.setDescripcion(producto.getDescripcion());
-            dto.setPrecio(producto.getPrecio());
-            dto.setTipo(producto.getTipo());
-            dto.setTipo2(producto.getTipo2());
-
-
-            dto.setFoto(producto.getFoto());
-
-            dto.setStock(producto.getStock());
-            dto.setHabilitado(producto.getHabilitado());
-            productosDTO.add(dto);
-        }
-
-        return productosDTO;
+        return productosMapper.convertirADTO(productosRepository.findAllById(ids));
     }
 
     // Guardar una foto como Large Object en PostgreSQL y devolver su OID
