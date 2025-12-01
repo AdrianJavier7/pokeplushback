@@ -2,7 +2,6 @@ package com.example.pokeplushback.Controladores;
 
 import com.example.pokeplushback.Dto.OpinionesDTO;
 import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
 import com.example.pokeplushback.Servicios.CloudinaryService;
 import com.example.pokeplushback.Servicios.OpinionesService;
@@ -10,14 +9,14 @@ import com.example.pokeplushback.Servicios.ProductosService;
 import com.example.pokeplushback.conversores.ProductosMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.Base64;
+import java.io.IOException;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -72,12 +71,13 @@ public class ProductosController {
 
     //Crear producto
     @PostMapping(value ="/crear", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ProductosDTO crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto
-    ) throws Exception {
-        String fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
-
+    public ResponseEntity<ProductosDTO> crearProducto(@RequestPart(value="producto") ProductosDTO producto, @RequestPart(value="foto", required = false) MultipartFile foto) throws Exception{
+        String fotoUrl = null;
+        if (foto != null && !foto.isEmpty()) {
+            fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
+        }
         Productos entidad = productosService.crearProductosConFoto(producto, fotoUrl);
-        return productosMapper.convertirADTO(entidad);
+        return ResponseEntity.ok(productosMapper.convertirADTO(entidad));
     }
 
     //Deshabilitar producto
@@ -107,5 +107,34 @@ public class ProductosController {
     @GetMapping ("/buscar")
     public List<ProductosDTO> buscarProductosPorNombre(@RequestParam String nombre){
         return productosService.buscarPorNombre(nombre);
+    }
+
+    @DeleteMapping("/{id}")
+    public void eliminarProducto(@PathVariable Integer id){
+        productosService.eliminarPorId(id);
+    }
+
+    @PutMapping("/{id}/stock")
+    public ResponseEntity<ProductosDTO> anadirStock(@PathVariable Integer id, @RequestParam int cantidad){
+        ProductosDTO producto = productosService.anadirStock(id, cantidad);
+        if (producto == null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(producto);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductosDTO> editarProducto(
+            @PathVariable Integer id,
+            @RequestPart("producto") ProductosDTO producto,
+            @RequestPart(value = "foto", required = false) MultipartFile foto) throws Exception {
+
+        String fotoUrl = null;
+        if (foto != null && !foto.isEmpty()) {
+            fotoUrl = cloudinaryService.upload(foto.getBytes(), "producto_" + producto.getNombre());
+        }
+
+        Productos entidad = productosService.editarProducto(id, producto, fotoUrl);
+        return ResponseEntity.ok(productosMapper.convertirADTO(entidad));
     }
 }
