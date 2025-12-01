@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductosService {
@@ -50,10 +51,10 @@ public class ProductosService {
     }
 
     //Crear producto con foto
-    public Productos crearProductosConFoto(ProductosDTO dto, String foto){
+    public Productos crearProductosConFoto(ProductosDTO dto, String fotoUrl){
 
         Productos producto = productosMapper.convertirAEntity(dto);
-        producto.setFoto(foto);
+        producto.setFoto(fotoUrl);
         producto.setHabilitado(true);
         producto.setOpiniones(null);
 
@@ -88,6 +89,11 @@ public class ProductosService {
         return productosRepository.findById(id).map(productosMapper::convertirADTO).orElse(null);
     }
 
+    //Eliminar producto
+    public void eliminarPorId(Integer id){
+        productosRepository.deleteById(id);
+    }
+
     public List<ProductosDTO> buscarPorNombre(String nombre){
         List<Productos> productos = productosRepository.findByNombreContainingIgnoreCase(nombre);
         return productosMapper.convertirADTO(productos);
@@ -96,6 +102,37 @@ public class ProductosService {
     //Obtener un producto por su id
     public List<ProductosDTO> obtenerProductosPorIds(List<Integer> ids) {
         return productosMapper.convertirADTO(productosRepository.findAllById(ids));
+    }
+
+    //Añadir stock
+    public ProductosDTO anadirStock(Integer idProducto, Integer cantidad){
+        Optional<Productos> productoOptional = productosRepository.findById(idProducto);
+        if (productoOptional.isPresent()){
+            Productos producto = productoOptional.get();
+            producto.setStock(producto.getStock()+cantidad);
+            productosRepository.save(producto);
+            return productosMapper.convertirADTO(producto);
+        }
+        return null;
+    }
+
+    //Editar producto
+    public Productos editarProducto(Integer id, ProductosDTO dto, String fotoUrl){
+        Productos producto = productosRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
+
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+        producto.setTipo(dto.getTipo());
+        producto.setTipo2(dto.getTipo2());
+
+        if (fotoUrl != null){
+            producto.setFoto(fotoUrl);
+        }
+
+        return productosRepository.save(producto);
     }
 
     // Guardar una foto como Large Object en PostgreSQL y devolver su OID
