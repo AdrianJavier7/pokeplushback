@@ -67,6 +67,12 @@ public class CarritoController {
         return carritoService.cancelarPedido(perfilUsuario, id);
     }
 
+    @DeleteMapping("/eliminarPedidos/{id}")
+    public ResponseEntity<Void> eliminarPedido(@RequestHeader("Authorization") String token, @PathVariable Integer id) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.eliminarPedido(id, perfilUsuario);
+    }
+
     @GetMapping("/obtener/{id}")
     public CarritoDTO obtenerCarritoPorId(@RequestHeader("Authorization") String token, @PathVariable Integer id) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);

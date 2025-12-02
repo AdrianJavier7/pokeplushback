@@ -46,8 +46,12 @@ public class SecurityConfig {
                     source.registerCorsConfiguration("/**", configuration);
                     cors.configurationSource(source);
                 })
-                .authorizeHttpRequests(req -> req.requestMatchers("/auth/**", "/error", "/api/productos/**").permitAll()
-                        .anyRequest().authenticated())
+                .authorizeHttpRequests(req -> req
+                        .requestMatchers("/auth/**", "/error", "/api/productos/**").permitAll()
+                        .requestMatchers("/carrito/verPedidos").hasAuthority("ADMIN")
+                        .requestMatchers("/carrito/eliminarPedidos/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated()
+                )
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling((exception) -> exception.accessDeniedHandler(accessDeniedHandler()));
