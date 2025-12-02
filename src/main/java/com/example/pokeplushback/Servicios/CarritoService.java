@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CarritoService {
@@ -213,5 +214,19 @@ public class CarritoService {
         } else {
             return null;
         }
+    }
+
+    public List<CarritoDTO> obtenerTodosLosPedidos() {
+        List<Estados> estadosPedidos = List.of(Estados.ENVIADO, Estados.ENTREGADO, Estados.PROCESANDO);
+        List<Carrito> carritos = carritoRepository.findAll()
+                .stream()
+                .filter(c -> c.getEstado() != null && estadosPedidos.contains(c.getEstado()))
+                .collect(Collectors.toList());
+
+        List<CarritoDTO> carritosDTO = new ArrayList<>();
+        for (Carrito carrito : carritos) {
+            carritosDTO.add(mapToDTO(carrito));
+        }
+        return carritosDTO;
     }
 }

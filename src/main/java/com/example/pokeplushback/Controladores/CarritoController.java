@@ -40,6 +40,11 @@ public class CarritoController {
         return carritoService.cambiarEstadoProcesando(perfilUsuario);
     }
 
+    @GetMapping("/verPedidos")
+    public List<CarritoDTO> verTodosLosPedidos() {
+        return carritoService.obtenerTodosLosPedidos();
+    }
+
     @GetMapping("/pedidos")
     public List<CarritoDTO> obtenerPedidosUsuario(@RequestHeader("Authorization") String token) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
