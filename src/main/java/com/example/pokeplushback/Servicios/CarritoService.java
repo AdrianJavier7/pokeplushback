@@ -94,7 +94,7 @@ public class CarritoService {
             nuevoCarrito.setCreadoEn(LocalDate.now());
             carritoRepository.save(nuevoCarrito);
 
-            // ✅ Obtener producto persistido antes de asignarlo
+            // Obtener producto persistido antes de asignarlo
             Productos productoExistente = productosRepository.findById(producto.getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
