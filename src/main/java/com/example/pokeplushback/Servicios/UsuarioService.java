@@ -105,7 +105,8 @@ public class UsuarioService implements UserDetailsService {
                         .ok(RespuestaDTO
                                 .builder()
                                 .estado(HttpStatus.OK.value())
-                                .token(token).build());
+                                .token(token)
+                                .rol(usuario.getNivel().name()).build());
             } else {
                 throw new BadCredentialsException("Contraseña incorrecta");
             }

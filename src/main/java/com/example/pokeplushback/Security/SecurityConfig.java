@@ -47,11 +47,25 @@ public class SecurityConfig {
                     cors.configurationSource(source);
                 })
                 .authorizeHttpRequests(req -> req
-                        .requestMatchers("/auth/**", "/error", "/api/productos/**").permitAll()
-                        .requestMatchers("/carrito/verPedidos").hasAuthority("ADMIN")
-                        .requestMatchers("/carrito/eliminarPedidos/**").hasAuthority("ADMIN")
-                        .anyRequest().authenticated()
-                )
+                        // rutas públicas
+                        .requestMatchers("/auth/**", "/error").permitAll()
+                        .requestMatchers("/api/productos",
+                                "/carrito/verPedidos",
+                                "/api/productos",
+                                "/api/productos/orden/**",
+                                "/api/productos/buscar",
+                                "/api/productos/obtenerPorVarios",
+                                "/api/productos/*/opiniones").permitAll()
+
+                        // rutas restringidas a ADMIN
+                        .requestMatchers("/api/productos/crear",
+                                "/api/productos/editar/**",
+                                "/api/productos/eliminar/**",
+                                "/api/productos/deshabilitar_producto/**",
+                                "/api/productos/habilitar_producto/**",
+                                "/api/productos/*/stock",
+                                "/carrito/eliminarPedidos/**").hasAuthority("ADMIN")
+                        .anyRequest().authenticated())
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtFilterChain, UsernamePasswordAuthenticationFilter.class)
                 .exceptionHandling((exception) -> exception.accessDeniedHandler(accessDeniedHandler()));
