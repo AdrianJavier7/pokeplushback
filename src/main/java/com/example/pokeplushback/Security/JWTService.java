@@ -63,7 +63,7 @@ public class JWTService {
         Map<String, Object> mapa = (LinkedHashMap<String, Object>) claims.get("tokenDataDTO");
 
         if (mapa == null) {
-            System.out.println("⚠️ No se encontró tokenDataDTO en el token JWT");
+            System.out.println("No se encontró tokenDataDTO en el token JWT");
             return null;
         }
 

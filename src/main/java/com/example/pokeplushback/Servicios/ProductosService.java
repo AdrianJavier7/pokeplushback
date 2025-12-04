@@ -1,11 +1,9 @@
 package com.example.pokeplushback.Servicios;
 
 import com.example.pokeplushback.Dto.ProductosDTO;
-import com.example.pokeplushback.Entidades.ItemsCarrito;
-import com.example.pokeplushback.Entidades.Opiniones;
 import com.example.pokeplushback.Entidades.Productos;
-import com.example.pokeplushback.Enums.Tipos;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
+import com.example.pokeplushback.conversores.ProductosMapper;
 import org.postgresql.PGConnection;
 import org.postgresql.largeobject.LargeObject;
 import org.postgresql.largeobject.LargeObjectManager;
@@ -15,10 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.sql.DataSource;
-import java.math.BigDecimal;
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class ProductosService {
@@ -27,109 +24,151 @@ public class ProductosService {
     private ProductosRepository productosRepository;
 
     @Autowired
+    private ProductosMapper productosMapper;
+
+    @Autowired
     private DataSource dataSource;
 
     //Listar todos los productos
-    public List<Productos> listarProductos(){
-        return productosRepository.findAll();
+    public List<ProductosDTO> listarProductos(){
+
+        return productosMapper.convertirADTO(productosRepository.findAll());
     }
 
     //Listar productos por precio menor a mayor
-    public List<Productos> listarPrecioMenor() {
-        return productosRepository.findAll(Sort.by("precio").ascending());
+    public List<ProductosDTO> listarPrecioMenor() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by("precio").ascending()));
     }
 
     //Listar productos por precio mayor a menor
-    public List<Productos> listarPrecioMayor() {
-        return productosRepository.findAll(Sort.by("precio").descending());
+    public List<ProductosDTO> listarPrecioMayor() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by("precio").descending()));
     }
 
-    //Relación con opiniones y carrito
-    public Productos guardarProductos(Productos producto){
-        if (producto.getOpiniones() != null){
-            for(Opiniones opiniones : producto.getOpiniones()){
-                opiniones.setProducto(producto);
-            }
-        }
+    //Listar por orden alfabético
+    public List<ProductosDTO> listarAlfabetico() {
+        return productosMapper.convertirADTO(productosRepository.findAll(Sort.by(Sort.Direction.ASC, "nombre")));
+    }
+
+    //Crear producto con foto
+    public Productos crearProductosConFoto(ProductosDTO dto, String fotoUrl){
+
+        Productos producto = productosMapper.convertirAEntity(dto);
+        producto.setFoto(fotoUrl);
+        producto.setHabilitado(true);
+        producto.setOpiniones(null);
 
         return productosRepository.save(producto);
-    }
-
-    //Añadir producto
-
-
-    public Productos crearProductosConFoto(ProductosDTO producto, String foto){
-
-        Productos productoNuevo =  new Productos();
-        productoNuevo.setNombre(producto.getNombre());
-        productoNuevo.setDescripcion(producto.getDescripcion());
-        productoNuevo.setPrecio(producto.getPrecio());
-        productoNuevo.setTipo(producto.getTipo());
-        if (foto == null){
-            productoNuevo.setFoto(null);
-        }
-        productoNuevo.setFoto(foto);
-        productoNuevo.setStock(producto.getStock());
-        productoNuevo.setHabilitado(true);
-        productoNuevo.setOpiniones(null);
-
-        return productosRepository.save(productoNuevo);
     }
 
     //Deshabilitar producto
-    public Productos deshabilitarProductos(Integer idProducto){
+    public ProductosDTO deshabilitarProductos(Integer idProducto){
         Productos producto = productosRepository.findById(idProducto).orElse(null);
-
         if (producto == null){
             return null;
         }
-
         producto.setHabilitado(false);
-
-        return productosRepository.save(producto);
+        Productos productos = productosRepository.save(producto);
+        return productosMapper.convertirADTO(productos);
 
     }
 
     //Habilitar producto
-    public Productos habilitarProductos(Integer idProducto){
+    public ProductosDTO habilitarProductos(Integer idProducto){
         Productos producto = productosRepository.findById(idProducto).orElse(null);
-
         if (producto == null){
             return null;
         }
-
         producto.setHabilitado(true);
-
-        return productosRepository.save(producto);
-
+        Productos productos = productosRepository.save(producto);
+        return productosMapper.convertirADTO(productos);
     }
 
-    public Productos obtenerProductoPorId(Integer id) {
-        return productosRepository.findById(id).orElse(null);
+    //Obtener producto por ID
+    public ProductosDTO obtenerProductoPorId(Integer id) {
+        return productosRepository.findById(id).map(productosMapper::convertirADTO).orElse(null);
     }
 
+    //Eliminar producto
+    public void eliminarPorId(Integer id){
+        productosRepository.deleteById(id);
+    }
+
+    public List<ProductosDTO> buscarPorNombre(String nombre){
+        List<Productos> productos = productosRepository.findByNombreContainingIgnoreCase(nombre);
+        return productosMapper.convertirADTO(productos);
+    }
+
+    //Obtener un producto por su id
     public List<ProductosDTO> obtenerProductosPorIds(List<Integer> ids) {
+        return productosMapper.convertirADTO(productosRepository.findAllById(ids));
+    }
 
-        List<Productos> productos = productosRepository.findAllById(ids);
-        List<ProductosDTO> productosDTO = new ArrayList<ProductosDTO>();
+    //Añadir stock
+    public ProductosDTO anadirStock(Integer idProducto, Integer cantidad){
+        Optional<Productos> productoOptional = productosRepository.findById(idProducto);
+        if (productoOptional.isPresent()){
+            Productos producto = productoOptional.get();
+            producto.setStock(producto.getStock()+cantidad);
+            productosRepository.save(producto);
+            return productosMapper.convertirADTO(producto);
+        }
+        return null;
+    }
 
-        for (Productos producto : productos) {
-            ProductosDTO dto = new ProductosDTO();
-            dto.setId(producto.getId());
-            dto.setNombre(producto.getNombre());
-            dto.setDescripcion(producto.getDescripcion());
-            dto.setPrecio(producto.getPrecio());
-            dto.setTipo(producto.getTipo());
+    //Editar producto
+    public Productos editarProducto(Integer id, ProductosDTO dto, String fotoUrl){
+        Productos producto = productosRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
-            dto.setFoto(producto.getFoto());
+        producto.setNombre(dto.getNombre());
+        producto.setDescripcion(dto.getDescripcion());
+        producto.setPrecio(dto.getPrecio());
+        producto.setStock(dto.getStock());
+        producto.setTipo(dto.getTipo());
+        producto.setTipo2(dto.getTipo2());
 
-            dto.setStock(producto.getStock());
-            dto.setHabilitado(producto.getHabilitado());
-            productosDTO.add(dto);
+        if (fotoUrl != null){
+            producto.setFoto(fotoUrl);
         }
 
-        return productosDTO;
+        return productosRepository.save(producto);
     }
 
+    // Guardar una foto como Large Object en PostgreSQL y devolver su OID
+    public Long guardarFotoComoLargeObject(MultipartFile file) throws Exception {
+        try (Connection conn = dataSource.getConnection()) {
+            conn.setAutoCommit(false);
+            LargeObjectManager lobj = conn.unwrap(PGConnection.class).getLargeObjectAPI();
+
+            long oid = lobj.createLO(LargeObjectManager.WRITE);
+            LargeObject obj = lobj.open(oid, LargeObjectManager.WRITE);
+            obj.write(file.getBytes());
+            obj.close();
+
+            conn.commit();
+            return oid;
+        }
+    }
+
+    // Leer una imagen desde un OID de Large Object en PostgreSQL
+    public byte[] leerImagenDesdeOid(Long oid) {
+        try (Connection connection = dataSource.getConnection()) {
+            connection.setAutoCommit(false);
+            // Usamos PGConnection para acceder a LargeObjectManager, que no viene por defecto en JDBC
+            org.postgresql.PGConnection pgConn = connection.unwrap(org.postgresql.PGConnection.class);
+            LargeObjectManager lobj = pgConn.getLargeObjectAPI();
+
+            LargeObject obj = lobj.open(oid, LargeObjectManager.READ);
+            byte[] data = new byte[obj.size()];
+            obj.read(data, 0, obj.size());
+            obj.close();
+
+            connection.commit();
+            return data;
+        } catch (Exception e) {
+            throw new RuntimeException("Error leyendo imagen por OID", e);
+        }
+    }
 
 }

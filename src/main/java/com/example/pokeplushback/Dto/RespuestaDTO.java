@@ -13,4 +13,5 @@ public class RespuestaDTO {
     private String token;
     private String mensaje;
     private Object cuerpo;
+    private String rol;
 }

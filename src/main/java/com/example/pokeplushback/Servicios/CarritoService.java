@@ -10,6 +10,7 @@ import com.example.pokeplushback.Repositorios.CarritoRepository;
 import com.example.pokeplushback.Repositorios.ItemsCarritoRepository;
 import com.example.pokeplushback.Repositorios.ProductosRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -17,6 +18,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class CarritoService {
@@ -92,7 +94,7 @@ public class CarritoService {
             nuevoCarrito.setCreadoEn(LocalDate.now());
             carritoRepository.save(nuevoCarrito);
 
-            // ✅ Obtener producto persistido antes de asignarlo
+            // Obtener producto persistido antes de asignarlo
             Productos productoExistente = productosRepository.findById(producto.getId())
                     .orElseThrow(() -> new RuntimeException("Producto no encontrado"));
 
@@ -212,6 +214,30 @@ public class CarritoService {
             return mapToDTO(carrito);
         } else {
             return null;
+        }
+    }
+
+    public List<CarritoDTO> obtenerTodosLosPedidos() {
+        List<Estados> estadosPedidos = List.of(Estados.ENVIADO, Estados.ENTREGADO, Estados.PROCESANDO);
+        List<Carrito> carritos = carritoRepository.findAll()
+                .stream()
+                .filter(c -> c.getEstado() != null && estadosPedidos.contains(c.getEstado()))
+                .collect(Collectors.toList());
+
+        List<CarritoDTO> carritosDTO = new ArrayList<>();
+        for (Carrito carrito : carritos) {
+            carritosDTO.add(mapToDTO(carrito));
+        }
+        return carritosDTO;
+    }
+
+    public ResponseEntity<Void> eliminarPedido(Integer idPedido, Usuario usuario) {
+        Carrito carrito = carritoRepository.findById(idPedido).orElse(null);
+        if (carrito != null) {
+            carritoRepository.delete(carrito);
+            return ResponseEntity.noContent().build();
+        } else {
+            return ResponseEntity.notFound().build();
         }
     }
 }

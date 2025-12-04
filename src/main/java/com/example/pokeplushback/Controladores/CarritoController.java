@@ -40,6 +40,11 @@ public class CarritoController {
         return carritoService.cambiarEstadoProcesando(perfilUsuario);
     }
 
+    @GetMapping("/verPedidos")
+    public List<CarritoDTO> verTodosLosPedidos() {
+        return carritoService.obtenerTodosLosPedidos();
+    }
+
     @GetMapping("/pedidos")
     public List<CarritoDTO> obtenerPedidosUsuario(@RequestHeader("Authorization") String token) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
@@ -60,6 +65,12 @@ public class CarritoController {
     public CarritoDTO cancelarPedido(@RequestHeader ("Authorization") String token, @PathVariable Integer id) {
         Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
         return carritoService.cancelarPedido(perfilUsuario, id);
+    }
+
+    @DeleteMapping("/eliminarPedidos/{id}")
+    public ResponseEntity<Void> eliminarPedido(@RequestHeader("Authorization") String token, @PathVariable Integer id) {
+        Usuario perfilUsuario = jwtService.extraerPerfilToken(token);
+        return carritoService.eliminarPedido(id, perfilUsuario);
     }
 
     @GetMapping("/obtener/{id}")
