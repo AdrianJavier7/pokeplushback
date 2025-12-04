@@ -56,6 +56,7 @@ public class OpinionesController {
         Usuario usuario = jwtService.extraerPerfilToken(token);
 
         OpinionesDTO opinion = opinionesService.actualizarOpinion(id, opinionActualizada, usuario);
+
         if (opinion != null) {
             return ResponseEntity.ok(opinion); //esto es un 200 OK que es lo que devuelve por defecto el metodo ok()
         }

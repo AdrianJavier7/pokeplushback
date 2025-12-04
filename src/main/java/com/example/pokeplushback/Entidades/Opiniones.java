@@ -33,4 +33,6 @@ public class Opiniones {
     @ManyToOne
     @JoinColumn(name = "id_producto")
     private Productos producto;
+
+
 }

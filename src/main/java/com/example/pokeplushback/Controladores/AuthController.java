@@ -2,6 +2,7 @@ package com.example.pokeplushback.Controladores;
 
 import com.example.pokeplushback.Dto.*;
 import com.example.pokeplushback.Entidades.Usuario;
+import com.example.pokeplushback.Security.JWTService;
 import com.example.pokeplushback.Servicios.EmailService;
 import com.example.pokeplushback.Servicios.UsuarioService;
 import lombok.AllArgsConstructor;
@@ -20,6 +21,9 @@ public class AuthController {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private JWTService jwtService;
 
     // Endpoint para el registro de usuarios
     @PostMapping(value ="/registro")
@@ -57,4 +61,5 @@ public class AuthController {
     public ResponseEntity<String> cambiarContrasena(@RequestBody CambiarContrasenaDTO dto) {
         return service.cambiarContrasena(dto);
     }
+
 }

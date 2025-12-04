@@ -253,4 +253,6 @@ public class UsuarioService implements UserDetailsService {
             throw new RuntimeException("Error leyendo imagen por OID", e);
         }
     }
+
+
 }
