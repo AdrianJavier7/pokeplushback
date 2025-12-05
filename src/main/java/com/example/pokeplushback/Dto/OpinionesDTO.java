@@ -21,5 +21,7 @@ public class OpinionesDTO {
 
     @Size(min=5, max=500)
     private String comentario;
+    private String nombreUsuario;
+    private Integer idUsuario;
 
 }

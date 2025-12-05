@@ -130,6 +130,8 @@ public class OpinionesService {
                     dto.setComentario(opinion.getComentario());
                     dto.setOpinion(opinion.getOpinion());
                     dto.setProductoId(opinion.getProducto().getId());
+                    dto.setNombreUsuario(opinion.getUsuario().getNombre());
+                    dto.setIdUsuario(opinion.getUsuario().getId());
                     return dto;
                 })
                 .toList();
