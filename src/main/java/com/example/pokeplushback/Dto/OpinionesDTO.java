@@ -27,6 +27,4 @@ public class OpinionesDTO {
     private String nombreUsuario;
     private Integer idUsuario;
 
-    private Integer idUsuario;
-    private String nombreUsuario;
 }
