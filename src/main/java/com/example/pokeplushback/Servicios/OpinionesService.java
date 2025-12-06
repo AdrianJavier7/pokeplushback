@@ -105,6 +105,8 @@ public class OpinionesService {
             dto.setComentario(opinionGuardada.getComentario());
             dto.setOpinion(opinionGuardada.getOpinion());
             dto.setProductoId(opinionGuardada.getProducto().getId());
+            dto.setIdUsuario(opinionGuardada.getUsuario().getId());
+            dto.setNombreUsuario(opinionGuardada.getUsuario().getNombre());
             return dto;
         }
         return null;
