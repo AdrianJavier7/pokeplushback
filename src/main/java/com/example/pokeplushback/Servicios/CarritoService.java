@@ -34,8 +34,11 @@ public class CarritoService {
 
 
     public CarritoDTO getCarritoUsuario(Usuario usuario){
-
         Carrito carrito = carritoRepository.findByUsuarioIdAndEstado(usuario.getId(), Estados.ACTIVO);
+
+        if (carrito == null) {
+            return null;
+        }
 
         return mapToDTO(carrito);
     }
@@ -120,17 +123,21 @@ public class CarritoService {
         dto.setEstado(carrito.getEstado());
         dto.setIdUsuario(carrito.getUsuario().getId());
         List<ItemsCarrito> items = carrito.getItems();
-        List<ItemCarritoDTO> itemsDTO = new ArrayList<>();
-        for (ItemsCarrito item : items) {
-            ItemCarritoDTO itemDTO = new ItemCarritoDTO();
-            itemDTO.setId(item.getId());
-            itemDTO.setCantidad(item.getCantidad());
-            itemDTO.setPrecioUnitario(item.getPrecioUnitario());
-            itemDTO.setIdCarrito(carrito.getId());
-            itemDTO.setIdProducto(item.getProducto().getId());
-            itemsDTO.add(itemDTO);
+        if(items != null) {
+            List<ItemCarritoDTO> itemsDTO = new ArrayList<>();
+            for (ItemsCarrito item : items) {
+                ItemCarritoDTO itemDTO = new ItemCarritoDTO();
+                itemDTO.setId(item.getId());
+                itemDTO.setCantidad(item.getCantidad());
+                itemDTO.setPrecioUnitario(item.getPrecioUnitario());
+                itemDTO.setIdCarrito(carrito.getId());
+                itemDTO.setIdProducto(item.getProducto().getId());
+                itemsDTO.add(itemDTO);
+            }
+            dto.setItems(itemsDTO);
+        } else {
+            dto.setItems(new ArrayList<>());
         }
-        dto.setItems(itemsDTO);
         return dto;
     }
 
