@@ -3,6 +3,7 @@ package com.example.pokeplushback.Security;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -56,7 +57,9 @@ public class SecurityConfig {
                                 "/api/productos/buscar",
                                 "/api/productos/obtenerPorVarios",
                                 "/api/productos/*/opiniones").permitAll()
-
+                                 /*
+                                "/categoria/**")
+                                 */
                         // rutas restringidas a ADMIN
                         .requestMatchers("/api/productos/crear",
                                 "/api/productos/editar/**",

@@ -111,4 +111,19 @@ public class Usuario implements UserDetails {
     public boolean isVerificado() {
         return Boolean.TRUE.equals(this.verificado);
     }
+
+    /* Relación con Categoria (Uno a Muchos) (Lado del 1)
+    @OneToMany(mappedBy = "usuario", cascade = CascadeType.ALL)
+    private List<Categoria> categorias;
+    */
+
+    /* Relación con Categoria (Uno a Uno)
+    @OneToOne(mappedBy = "usuario")
+    private Categoria categoria;
+    */
+
+    /* Relación con Categoria (Muchos a Muchos)
+    @ManyToMany(mappedBy = "usuarios")
+    private List<Categoria> categorias;
+    */
 }
